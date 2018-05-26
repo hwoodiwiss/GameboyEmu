@@ -117,7 +117,7 @@
   <ItemGroup>
     <ClInclude Include="CPU.h" />
     <ClInclude Include="MMU.h" />
-    <ClInclude Include="Operation.h" />
+    <ClInclude Include="Instruction.h" />
     <ClInclude Include="Shared.h" />
   </ItemGroup>
   <ItemGroup>

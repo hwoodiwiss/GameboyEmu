@@ -2,6 +2,7 @@
 
 #include "MMU.h"
 #include "Shared.h"
+#include "Instruction.h"
 
 //Flag definitions for the F register. To add a flag, OR it in.
 extern BYTE f_Zero;
@@ -16,6 +17,8 @@ public:
 	~CPU();
 
 	void Boot();
+
+	void regOp(BYTE Opcode, Instruction instruction);
 
 private:
 	//Registers
@@ -36,8 +39,12 @@ private:
 		Any 2 neighbouring 8-bit registers can be used to store a 16 bit value
 	*/
 	BYTE A, F, B, C, D, E, H, L;
+
 	WORD _SP, _PC;
 
 	//Memory manager
 	MMU* _mmu;
+
+	//Instructions
+	//OpCode operations[0xFF];
 };

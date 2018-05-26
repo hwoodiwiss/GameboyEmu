@@ -18,7 +18,7 @@
     <ClInclude Include="Shared.h">
       <Filter>Gameboy</Filter>
     </ClInclude>
-    <ClInclude Include="Operation.h">
+    <ClInclude Include="Instruction.h">
       <Filter>Gameboy</Filter>
     </ClInclude>
   </ItemGroup>

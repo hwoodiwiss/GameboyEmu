@@ -2,7 +2,7 @@
 
 #include "Shared.h"
 
-class Operation
+class Instruction
 {
 
 };
