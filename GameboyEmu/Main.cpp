@@ -4,16 +4,14 @@
 
 int main(void)
 {
-	MMU* memManager = new MMU();
-	CPU zl80 = CPU(memManager);
-	WORD byteAddr = memManager->WriteByte(32);
-
-	printf("Byte val retrieved: %hu \n", memManager->ReadByte(byteAddr));
-
-	WORD wordAddr = memManager->WriteWord(9999);
-	memManager->WriteByte(32);
-	printf("Word val retrieved: %hu\n", memManager->ReadWord(wordAddr));
-	getchar();
+	MMU* mmu = new MMU();
+	CPU cpu = CPU(mmu);
+	WORD byteAddr = mmu->WriteByte(32);
+	cpu.Boot();
+	while (true)
+	{
+		cpu.Tick();
+	}
 
 	return 0;
 }

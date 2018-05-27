@@ -30,6 +30,12 @@
     <ClCompile Include="CPU.cpp">
       <Filter>Gameboy</Filter>
     </ClCompile>
+    <ClCompile Include="Instruction.cpp">
+      <Filter>Gameboy</Filter>
+    </ClCompile>
+    <ClCompile Include="Instructions.cpp">
+      <Filter>Gameboy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Game.bin">

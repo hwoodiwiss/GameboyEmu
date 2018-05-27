@@ -20,6 +20,8 @@ public:
 
 	void regOp(BYTE Opcode, Instruction instruction);
 
+	void Tick();
+
 private:
 	//Registers
 	
@@ -46,5 +48,6 @@ private:
 	MMU* _mmu;
 
 	//Instructions
+	Instruction* instruction;
 	//OpCode operations[0xFF];
 };
