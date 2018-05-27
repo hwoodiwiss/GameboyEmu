@@ -41,5 +41,8 @@
     <None Include="Game.bin">
       <Filter>Gameboy</Filter>
     </None>
+    <None Include="ROM.bin">
+      <Filter>Gameboy</Filter>
+    </None>
   </ItemGroup>
 </Project>

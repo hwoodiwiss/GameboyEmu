@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Game.bin" />
+    <None Include="ROM.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

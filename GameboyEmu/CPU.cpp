@@ -36,10 +36,6 @@ void CPU::Tick()
 	else if (opCode == 0x66)
 	{
 		H = _mmu->ReadByte(BytesToWord(L, H));
-		if (H == 0x00);
-		{
-			F |= f_Zero;
-		}
 	}
 	else if (opCode == 0xCC)
 	{
