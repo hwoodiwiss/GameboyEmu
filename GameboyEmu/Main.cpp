@@ -6,12 +6,23 @@ int main(void)
 {
 	MMU* mmu = new MMU();
 	CPU cpu = CPU(mmu);
-	WORD byteAddr = mmu->WriteByte(32);
 	cpu.Boot();
-	while (true)
+	bool running = true;
+	while (running)
 	{
-		cpu.Tick();
+		try
+		{
+			cpu.Tick();
+		}
+		catch (const char* ex)
+		{
+			printf(ex);
+			running = false;
+		}
 	}
+
+	printf("Press any key to exit...");
+	getchar();
 
 	return 0;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "Bootstrap.h"
 
 class MMU
 {
@@ -9,6 +10,7 @@ public:
 	MMU();
 	~MMU();
 
+	void LoadBootstrap();
 	void LoadGraphic();
 
 	WORD WriteByte(BYTE val);

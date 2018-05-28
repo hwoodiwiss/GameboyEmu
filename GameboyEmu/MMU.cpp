@@ -11,6 +11,20 @@ MMU::~MMU()
 	delete memory;
 }
 
+void MMU::LoadBootstrap()
+{
+	memContext = memAllocator;
+	memAllocator = 0x0;
+
+	for (WORD i = 0; i < 256; i++)
+	{
+		WriteByte(BootstrapRom[i]);
+	}
+
+	memAllocator = memContext;
+
+}
+
 void MMU::LoadGraphic()
 {
 	memContext = memAllocator;
