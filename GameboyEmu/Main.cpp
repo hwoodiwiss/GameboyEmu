@@ -14,9 +14,9 @@ int main(void)
 		{
 			cpu.Tick();
 		}
-		catch (const char* ex)
+		catch (BYTE opCode)
 		{
-			printf(ex);
+			printf("Operation not implemented!\nTalk to Hugo.\n %X", opCode);
 			running = false;
 		}
 	}

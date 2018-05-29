@@ -22,20 +22,47 @@ public:
 		InstructionFunc function;
 	};
 
+	void NOP_0x00();
+	void LD_BC_d16_0x01();
+	void LD_pBC_A_0x02();
+	void INC_BC_0x03();
+	void INC_B_0x04();
+	void DEC_B_0x05();
+	void LD_B_d8_0x06();
+	void RLCA_0x07();
+	void LD_pd16_SP_0x08();
+	void ADD_HL_BC_0x09();
+	void LD_A_pBC_0x0A();
+	void DEC_BC_0x0B();
+	void INC_C_0x0C();
+	void DEC_C_0x0D();
+	void LD_C_d8_0x0E();
+	void RRCA_0x0F();
+	void STOP_0x10();
+	void LD_DE_d16_0x11();
 	void JR_NZ_0x20();
 	void LD_HL_0x21();
 	void LD_SP_0x31();
 	void LD_HL_MINUS_0x32();
+	void LD_A_d8_0x3E();
+	void LD_C_A_0x4F();
 	void LD_HL_H_0x66();
+	void LD_pHL_A_0x77();
+	void ADD_A_B_0x80();
 	void SBC_A_A_0x9F();
 	void XOR_A_0xAF();
+	void PUSH_BC_0xC5();
 	void PREFIX_0xCB();
 	void CALL_Z_0xCC();
+	void CALL_d16_0xCD();
 	void ADC_A_0xCE();
+	void POP_HL_0xE2();
+	void LDH_pa8_A_0xE0();
 	void BIT_H_7_0xCB7C();
+	void RL_C_0xCB11();
 
 	CPU(MMU*);
-	void RegInstruction(WORD opCode, BYTE duration, InstructionFunc function);
+	void RegInstruction(WORD opCode, InstructionFunc function);
 	~CPU();
 
 	void Boot();
@@ -72,13 +99,16 @@ private:
 
 	WORD _SP, _PC;
 
+	DWORD clock;
+
 
 	Instruction instructions[0xFF];
 	Instruction cbPageInstructions[0xFF];
 
 	//Memory manager
 	MMU* _mmu;
-
+	
 	//Instructions
 	//OpCode operations[0xFF];
+	bool noInc;
 };
