@@ -1,16 +1,0 @@
-WARNING! Debug output slows operation SIGNIFICANTLY.
-Gameboy assembly loops are painfully slow.
-Use release build to test at real/near real performance.
-A = D:0 H:00 | F = D:0 H:00
-B = D:0 H:00 | C = D:0 H: 00
-D = D:0 H:00 | E = D:0 H:00
-H = D:0 H:00 | L = D:0 H:00
-_______________________________
-    PC = D:2 H:0002
-    SP = D:65534 H:FFFE
-    BC = D:0 H:0000
-    DE = D:0 H:0000
-    HL = D:0 H:0000
-
-
-Last Op: 0031
