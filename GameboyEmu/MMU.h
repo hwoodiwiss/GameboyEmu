@@ -19,8 +19,12 @@ public:
 	void WriteByte(WORD addr, BYTE val);
 	void WriteWord(WORD addr, WORD val);
 
+	void WriteWordBellow(WORD addr, WORD val);
+
 	BYTE ReadByte(WORD addr);
 	WORD ReadWord(WORD addr);
+
+	WORD ReadWordBellow(WORD addr);
 
 private:
 	BYTE memory[0xFFFF];

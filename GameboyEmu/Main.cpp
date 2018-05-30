@@ -13,10 +13,13 @@ int main(void)
 		try
 		{
 			cpu.Tick();
+#if(_DEBUG)
+			cpu.DrawState();
+#endif
 		}
 		catch (BYTE opCode)
 		{
-			printf("Operation not implemented!\nTalk to Hugo.\n %X", opCode);
+			printf("Operation not implemented!\nTalk to Hugo.\n %X\n", opCode);
 			running = false;
 		}
 	}

@@ -20,4 +20,4 @@ const BYTE scrollingGraphic[48] = { 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x
 //The implied end outcome for the OR operation is: 00001011 00000000 OR 00000000 11100000
 //Which gives: 00001011 11100000
 #define BytesToWord(low, high) (WORD)((low & 0xFF)|(high << 8))
-#define WordToBytes(low, high, word) low = (BYTE)word; high = (BYTE)word >> 8
+#define WordToBytes(low, high, word) low = (BYTE)word; high = (BYTE)(word >> 8)
