@@ -14,12 +14,15 @@ int main(void)
 		{
 			cpu.Tick();
 #if(_DEBUG)
-			cpu.DrawState();
+			//cpu.DrawState();
 #endif
 		}
-		catch (BYTE opCode)
+		catch (WORD opCodeAndPC)
 		{
-			printf("Operation not implemented!\nTalk to Hugo.\n %X\n", opCode);
+			BYTE opCode;
+			BYTE PC;
+			WordToBytes(opCode, PC, opCodeAndPC);
+			printf("Operation not implemented!\nTalk to Hugo.\nOpcode: %02X\nProgram Counter: H: %02X D: %d\n", opCode, PC, PC);
 			running = false;
 		}
 	}

@@ -38,8 +38,11 @@ CPU::CPU(MMU *mmu)
 	RegInstruction(0x0021, &CPU::LD_HL_0x21);
 	RegInstruction(0x0022, &CPU::LD_HL_PLUS_0x22);
 	RegInstruction(0x0023, &CPU::INC_HL_0x23);
+	RegInstruction(0x0028, &CPU::JR_Z_r8_0x28);
 	RegInstruction(0x0031, &CPU::LD_SP_0x31);
 	RegInstruction(0x0032, &CPU::LD_HL_MINUS_0x32);
+	RegInstruction(0x003C, &CPU::INC_A_0x3C);
+	RegInstruction(0x003D, &CPU::DEC_A_0x3D);
 	RegInstruction(0x003E, &CPU::LD_A_d8_0x3E);
 	RegInstruction(0x004F, &CPU::LD_C_A_0x4F);
 	RegInstruction(0x0066, &CPU::LD_HL_H_0x66);
@@ -113,7 +116,7 @@ void CPU::Tick()
 
 	if (op.function == 0)
 	{
-		throw opCode;
+		throw BytesToWord(opCode, _PC);
 	}
 	(*this.*op.function)();
 
@@ -426,6 +429,24 @@ void CPU::INC_HL_0x23()
 	WordToBytes(L, H, tmp);
 }
 
+void CPU::JR_Z_r8_0x28()
+{
+	SBYTE operand = _mmu->ReadByte(_PC + 1);
+	if ((F & f_Zero) == f_Zero)
+	{
+		_PC++;
+		clock += 12;
+		_PC += operand;
+		noInc = true;
+	}
+	else
+	{
+		_PC++;
+		clock += 8;
+	}
+
+}
+
 void CPU::LD_SP_0x31()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
@@ -441,6 +462,51 @@ void CPU::LD_HL_MINUS_0x32()
 	WordToBytes(L, H, val);
 	_mmu->WriteByte(BytesToWord(L, H), A);
 	clock += 8;
+}
+
+void CPU::INC_A_0x3C()
+{
+	clock += 4;
+	if ((A & 0xF) == 0xF)
+	{
+		F |= f_HalfCarry;
+	}
+	else
+	{
+		F &= ~f_HalfCarry;
+	}
+	A++;
+	if (A == 0)
+	{
+		F |= f_Zero;
+	}
+	else
+	{
+		F &= ~f_Zero;
+	}
+}
+
+void CPU::DEC_A_0x3D()
+{
+	clock += 4;
+	if ((A << 4) == 0x1)
+	{
+		F |= f_HalfCarry;
+	}
+	else
+	{
+		F &= ~f_HalfCarry;
+	}
+	A--;
+	if (A == 0)
+	{
+		F |= f_Zero;
+	}
+	else
+	{
+		F &= ~f_Zero;
+	}
+	F |= f_Subtract;
 }
 
 void CPU::LD_A_d8_0x3E()

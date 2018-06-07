@@ -46,6 +46,7 @@ private:
 	WORD stackPop();
 	void IncSP();
 	void DecSP();
+
 	//Registers
 	
 	/*
@@ -68,6 +69,9 @@ private:
 	WORD _SP, _PC;
 
 	DWORD clock;
+
+	BYTE IF;
+	bool IME;
 
 #if(_DEBUG)
 	WORD prevOp;
@@ -109,8 +113,11 @@ private:
 	void LD_HL_0x21();
 	void LD_HL_PLUS_0x22();
 	void INC_HL_0x23();
+	void JR_Z_r8_0x28();
 	void LD_SP_0x31();
 	void LD_HL_MINUS_0x32();
+	void INC_A_0x3C();
+	void DEC_A_0x3D();
 	void LD_A_d8_0x3E();
 	void LD_C_A_0x4F();
 	void LD_HL_H_0x66();
