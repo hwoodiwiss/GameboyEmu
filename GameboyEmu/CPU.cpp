@@ -171,61 +171,39 @@ void CPU::LD_BC_d16_0x01()
 {
 	clock += 12;
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	C = (BYTE)operand;
-	B = (BYTE)operand >> 8;
+	LD(&C, &B, operand);
 	_PC += 2;
 }
 
 void CPU::LD_pBC_A_0x02()
 {
 	clock += 8;
-	_mmu->WriteByte(BytesToWord(C, B), A);
+	LD(BytesToWord(C, B), A);
 }
 
 void CPU::INC_BC_0x03()
 {
 	clock += 8;
-	WORD val = BytesToWord(C, B);
-	val++;
-	B = (BYTE)val >> 8;
-	C = (BYTE)val;
+	INC(&C, &B);
 }
 
 void CPU::INC_B_0x04()
 {
 	clock += 4;
-	if ((B & 0xF) == 0xF)
-	{
-		F |= f_HalfCarry;
-	}
-	B++;
-	if (B == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Subtract;
+	INC(&B);
 }
 
 void CPU::DEC_B_0x05()
 {
 	clock += 4;
-	if ((B & 0x10) == 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	B--;
-	if (B == 0)
-	{
-		F |= f_Zero;
-	}
-	F |= f_Subtract;
+	DEC(&B);
 }
 
 void CPU::LD_B_d8_0x06()
 {
 	clock += 8;
 	BYTE operand = _mmu->ReadByte(_PC + 1);
-	B = operand;
+	LD(&B, operand);
 	_PC++;
 }
 
@@ -257,73 +235,39 @@ void CPU::ADD_HL_BC_0x09()
 {
 	clock += 8;
 	WORD operand = BytesToWord(C, B);
-	WORD target = BytesToWord(L, H);
-	WORD result = operand + target;
-
-	L = (BYTE)result;
-	H = (BYTE)result >> 8;
-
-	if ((((operand >> 8) & 0xF) + ((target >> 8) & 0xF)) & 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	if ((operand & 0x80) && (target & 0x80))
-	{
-		F |= f_Carry;
-	}
-	F &= ~f_Subtract;
+	ADD(BytesToWord(C, B));
 }
 
 void CPU::LD_A_pBC_0x0A()
 {
 	clock += 8;
 	WORD addr = BytesToWord(C, B);
-	A = _mmu->ReadByte(addr);
+	LD(&A, _mmu->ReadByte(addr));
 }
 
 void CPU::DEC_BC_0x0B()
 {
 	clock += 8;
-	WORD val = BytesToWord(C, B);
-	val--;
-	WordToBytes(C, B, val);
+	DEC(&C, &B);
 }
 
 void CPU::INC_C_0x0C()
 {
 	clock += 4;
-	if ((C & 0xF) == 0xF)
-	{
-		F |= f_HalfCarry;
-	}
-	C++;
-	if (C == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Subtract;
+	INC(&C);
 }
 
 void CPU::DEC_C_0x0D()
 {
 	clock += 4;
-	if ((C & 0xF) == 0xF)
-	{
-		F |= f_HalfCarry;
-	}
-	C--;
-	if (C == 0)
-	{
-		F |= f_Zero;
-	}
-	F |= f_Subtract;
+	DEC(&C);
 }
 
 void CPU::LD_C_d8_0x0E()
 {
 	clock += 8;
-	BYTE operand = _mmu->ReadWord(_PC + 1);
-	C = (BYTE)operand;
+	BYTE operand = _mmu->ReadByte(_PC + 1);
+	LD(&C, operand);
 	_PC ++;
 }
 
@@ -339,23 +283,20 @@ void CPU::STOP_0x10()
 void CPU::LD_DE_d16_0x11()
 {
 	clock += 12;
-	WORD operand = _mmu->ReadWord(_PC + 1);
-	WordToBytes(E, D, operand);
+	LD(&E, &D, _mmu->ReadWord(_PC + 1));
 	_PC += 2;
 }
 
 void CPU::LD_pDE_A_0x12()
 {
 	clock += 8;
-	_mmu->WriteByte(BytesToWord(E, D), A);
+	LD(BytesToWord(E, D), A);
 }
 
 void CPU::INC_DE_0x13()
 {
 	clock += 8;
-	WORD tmp = BytesToWord(E, D);
-	tmp++;
-	WordToBytes(E, D, tmp);
+	INC(&E, &D);
 }
 
 void CPU::RLA_0x17()
@@ -391,24 +332,13 @@ void CPU::AND_C_0x1A()
 void CPU::JR_NZ_0x20()
 {
 	SBYTE operand = _mmu->ReadByte(_PC + 1);
-	if ((F & f_Zero) != f_Zero)
-	{
-		_PC++;
-		_PC += operand;
-		noInc = true;
-		clock += 12;
-	}
-	else
-	{
-		_PC++;
-		clock += 8;
-	}
+	JR(((F & f_Zero) != f_Zero), operand);
 }
 void CPU::LD_HL_0x21()
 {
-	WORD operand = _mmu->ReadWord(_PC + 1);
-	WordToBytes(L, H, operand);
 	clock += 12;
+	WORD operand = _mmu->ReadWord(_PC + 1);
+	LD(&L, &H, operand);
 	_PC += 2;
 }
 
@@ -424,27 +354,13 @@ void CPU::LD_HL_PLUS_0x22()
 void CPU::INC_HL_0x23()
 {
 	clock += 8;
-	WORD tmp = BytesToWord(L, H);
-	tmp++;
-	WordToBytes(L, H, tmp);
+	INC(&L, &H);
 }
 
 void CPU::JR_Z_r8_0x28()
 {
 	SBYTE operand = _mmu->ReadByte(_PC + 1);
-	if ((F & f_Zero) == f_Zero)
-	{
-		_PC++;
-		clock += 12;
-		_PC += operand;
-		noInc = true;
-	}
-	else
-	{
-		_PC++;
-		clock += 8;
-	}
-
+	JR(((F & f_Zero) == f_Zero), operand);
 }
 
 void CPU::LD_SP_0x31()
@@ -467,106 +383,55 @@ void CPU::LD_HL_MINUS_0x32()
 void CPU::INC_A_0x3C()
 {
 	clock += 4;
-	if ((A & 0xF) == 0xF)
-	{
-		F |= f_HalfCarry;
-	}
-	else
-	{
-		F &= ~f_HalfCarry;
-	}
-	A++;
-	if (A == 0)
-	{
-		F |= f_Zero;
-	}
-	else
-	{
-		F &= ~f_Zero;
-	}
+	INC(&A);
 }
 
 void CPU::DEC_A_0x3D()
 {
 	clock += 4;
-	if ((A << 4) == 0x1)
-	{
-		F |= f_HalfCarry;
-	}
-	else
-	{
-		F &= ~f_HalfCarry;
-	}
-	A--;
-	if (A == 0)
-	{
-		F |= f_Zero;
-	}
-	else
-	{
-		F &= ~f_Zero;
-	}
-	F |= f_Subtract;
+	DEC(&A);
 }
 
 void CPU::LD_A_d8_0x3E()
 {
 	clock += 8;
-	BYTE operand = _mmu->ReadByte(_PC + 1);
-	A = operand;
+	LD(&A, _mmu->ReadByte(_PC + 1));
 	_PC++;
 }
 
 void CPU::LD_C_A_0x4F()
 {
 	clock += 4;
-	C = A;
+	LD(&C, A);
 }
 
 void CPU::LD_HL_H_0x66()
 {
-	H = _mmu->ReadByte(BytesToWord(L, H));
+	LD(&H, _mmu->ReadByte(BytesToWord(L, H)));
 	clock += 8;
 }
 
 void CPU::LD_pHL_A_0x77()
 {
 	clock += 8;
-	_mmu->WriteByte(BytesToWord(L, H), A);
+	LD(BytesToWord(L, H), A);
 }
 
 void CPU::LD_A_E_0x7B()
 {
 	clock += 4;
-	A = E;
+	LD(&A, E);
 }
 
 void CPU::ADD_A_B_0x80()
 {
 	clock += 4;
-	WORD res = A + B;
-
-	if ((((B >> 8) & 0xF) + ((A >> 8) & 0xF)) & 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	if (res & 0x100)
-	{
-		F |= f_Carry;
-	}
-	if (res == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Subtract;
-	A = (BYTE)res;
+	ADD(B);
 }
 
 void CPU::SBC_A_A_0x9F()
 {
-	A -= A;
-	F |= f_Subtract;
-	F |= f_Zero;
+	SBC(A);
 	clock += 4;
 }
 
@@ -748,4 +613,148 @@ void CPU::RL_C_0xCB11()
 	F &= ~f_Subtract;
 	F &= ~f_HalfCarry;
 	F &= ~f_Zero;
+}
+
+void CPU::LD(BYTE * _register, BYTE operand)
+{
+	(*_register) = operand;
+}
+
+void CPU::LD(BYTE * regLow, BYTE * regHigh, WORD operand)
+{
+	(*regLow) = (BYTE)operand;
+	(*regHigh) = (BYTE)operand >> 8;
+}
+
+void CPU::LD(WORD _address, BYTE operand)
+{
+	_mmu->WriteByte(_address, operand);
+}
+
+void CPU::ADD(BYTE operand)
+{
+	WORD res = A + operand;
+
+	if ((((operand >> 8) & 0xF) + ((A >> 8) & 0xF)) & 0x10)
+	{
+		F |= f_HalfCarry;
+	}
+	if (res & 0x100)
+	{
+		F |= f_Carry;
+	}
+	if (res == 0)
+	{
+		F |= f_Zero;
+	}
+	F &= ~f_Subtract;
+	A = (BYTE)res;
+}
+
+void CPU::ADD(WORD operand)
+{
+	WORD target = BytesToWord(L, H);
+
+	WORD result = operand + target;
+
+	L = (BYTE)result;
+	H = (BYTE)result >> 8;
+
+	if ((((operand >> 8) & 0xF) + ((target >> 8) & 0xF)) & 0x10)
+	{
+		F |= f_HalfCarry;
+	}
+	if ((operand & 0x80) && (target & 0x80))
+	{
+		F |= f_Carry;
+	}
+	F &= ~f_Subtract;
+}
+
+void CPU::SUB(BYTE operand)
+{
+}
+
+void CPU::SUB(WORD operand)
+{
+}
+
+void CPU::SBC(BYTE operand)
+{
+	if ((A & 0x10) == 0x10)
+	{
+		F |= f_HalfCarry;
+	}
+	A -= operand;
+	if (A == 0)
+	{
+		F |= f_Zero;
+	}
+	F |= f_Subtract;
+}
+
+void CPU::SBC(WORD operand)
+{
+}
+
+void CPU::INC(BYTE * _register)
+{
+	if (((*_register) & 0xF) == 0xF)
+	{
+		F |= f_HalfCarry;
+	}
+	(*_register)++;
+	if ((*_register) == 0)
+	{
+		F |= f_Zero;
+	}
+	F &= ~f_Subtract;
+}
+
+void CPU::INC(BYTE * regLow, BYTE * regHigh)
+{
+	WORD val = BytesToWord((*regLow), (*regHigh));
+	val++;
+	WordToBytes((*regLow), (*regHigh), val);
+}
+
+void CPU::DEC(BYTE * _register)
+{
+	if (((*_register) & 0x10) == 0x10)
+	{
+		F |= f_HalfCarry;
+	}
+	(*_register)--;
+	if ((*_register) == 0)
+	{
+		F |= f_Zero;
+	}
+	F |= f_Subtract;
+}
+
+void CPU::DEC(BYTE * regLow, BYTE * regHigh)
+{
+	WORD val = BytesToWord((*regLow), (*regHigh));
+	val--;
+	WordToBytes((*regLow), (*regHigh), val);
+}
+
+void CPU::BIT(BYTE * _register, BYTE bit)
+{
+}
+
+void CPU::JR(bool condition, SBYTE offset)
+{
+	if (condition)
+	{
+		_PC++;
+		clock += 12;
+		_PC += offset;
+		noInc = true;
+	}
+	else
+	{
+		_PC++;
+		clock += 8;
+	}
 }

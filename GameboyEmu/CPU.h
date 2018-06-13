@@ -72,6 +72,7 @@ private:
 
 	BYTE IF;
 	bool IME;
+	bool HALT;
 
 #if(_DEBUG)
 	WORD prevOp;
@@ -84,6 +85,23 @@ private:
 	MMU* _mmu;
 	
 	//Instructions
+
+	void LD(BYTE* _register, BYTE operand);
+	void LD(BYTE* regLow, BYTE* regHigh, WORD operand);
+	void LD(WORD _address, BYTE operand);
+	void ADD(BYTE operand); //Result always in A
+	void ADD(WORD operand); // Result always in HL
+	void SUB(BYTE operand);
+	void SUB(WORD operand);
+	void SBC(BYTE operand);
+	void SBC(WORD operand);
+	void INC(BYTE* _register);
+	void INC(BYTE* regLow, BYTE* regHigh);
+	void DEC(BYTE* _register);
+	void DEC(BYTE* regLow, BYTE* regHigh);
+	void BIT(BYTE* _register, BYTE bit);
+	void JR(bool condition, SBYTE address);
+
 	//OpCode operations[0xFF];
 	bool noInc;
 
