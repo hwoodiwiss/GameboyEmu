@@ -1,61 +1,78 @@
 #include "MMU.h"
+#include <iostream>
+#include <fstream>
 
 MMU::MMU()
 {
-	memAllocator = 0xC000;
-	LoadGraphic();
-}
-
-MMU::~MMU()
-{
-	delete memory;
+	memory = std::unique_ptr<BYTE[]>(new BYTE[0xFFFF]);
+	//LoadGraphic();
 }
 
 void MMU::LoadBootstrap()
 {
-	memContext = memAllocator;
-	memAllocator = 0x0;
 
-	for (WORD i = 0; i < 256; i++)
+	for (WORD i = 0; i < 0xFF; i++)
 	{
-		WriteByte(BootstrapRom[i]);
+		WriteByte(i, BootstrapRom[i]);
 	}
 
-	memAllocator = memContext;
-
 }
 
-void MMU::LoadGraphic()
-{
-	memContext = memAllocator;
-	memAllocator = 0x104;
 
-	for (BYTE i = 0; i < sizeof(scrollingGraphic); i++)
+bool MMU::LoadROM(const char* fileName)
+{
+	std::ifstream romFile;
+	romFile.open(fileName, std::ios::binary);
+	if (romFile.fail())
 	{
-		WriteByte(scrollingGraphic[i]);
+		printf("Error opening file!\n");
+		return false;
 	}
 
-	memAllocator = memContext;
+	WORD ptr = 0x0100;
+	for (ptr; ptr < 0x14F; ptr++)
+	{
+		char nxtByte;
+		romFile.read(&nxtByte, 1);
+		memory[ptr] = nxtByte;
+	}
+
+	for (ptr; ptr < 0x3FFF; ptr++)
+	{
+		char nxtByte;
+		romFile.read(&nxtByte, 1);
+		memory[ptr] = nxtByte;
+	}
+
+	return true;
 }
 
-WORD MMU::WriteByte(BYTE val)
+bool MMU::LoadROM(char* fileName)
 {
-	memory[memAllocator] = val;
-	return memAllocator++;
-}
+	std::ifstream romFile;
+	romFile.open(fileName, std::ios::binary);
+	if (romFile.fail())
+	{
+		printf("Error opening file!\n");
+		return false;
+	}
 
-WORD MMU::WriteWord(WORD val)
-{
-	//Stored least significant first to emulate little-endianness
-	memory[memAllocator] = (BYTE)(val);
+	BYTE ptr = 0x0100;
+	for (ptr; ptr < 0x14F; ptr++)
+	{
+		char nxtByte;
+		romFile.read(&nxtByte, 1);
+		memory[ptr] = nxtByte;
+	}
 
-	//Right shifted 8 bits to ignore the least significant byte
-	//EG. 2000 = 00001011 1110000
-	// 00001011 11100000 >> 8 = 11100000 00000000
-	//Cast to byte and we store 11100000
-	memory[memAllocator + 1] = (BYTE)(val >> 8);
-	memAllocator += 2;
-	return memAllocator - 2;
+	for (ptr; ptr < 0x3FFF; ptr++)
+	{
+		char nxtByte;
+		romFile.read(&nxtByte, 1);
+		memory[ptr] = nxtByte;
+	}
+
+	return true;
 }
 
 void MMU::WriteByte(WORD addr, BYTE val)
