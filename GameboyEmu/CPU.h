@@ -2,11 +2,6 @@
 
 #include "MMU.h"
 #include "Shared.h"
-#if(_DEBUG)
-#include <stdlib.h>
-#include <stdio.h>
-#endif
-
 
 //Flag definitions for the F register. To add a flag, OR it in.
 extern BYTE f_Zero;
@@ -26,7 +21,7 @@ public:
 		InstructionFunc function;
 	};
 
-	CPU(MMU*);
+	CPU(std::shared_ptr<MMU>);
 	void RegInstruction(WORD opCode, InstructionFunc function);
 	~CPU();
 
@@ -68,7 +63,7 @@ private:
 
 	WORD _SP, _PC;
 
-	DWORD clock;
+	unsigned long long clock;
 
 	BYTE IF;
 	bool IME;
@@ -82,7 +77,7 @@ private:
 	Instruction cbPageInstructions[0xFF];
 
 	//Memory manager
-	MMU* _mmu;
+	std::shared_ptr<MMU> _mmu;
 	
 	//Instructions
 
@@ -91,16 +86,25 @@ private:
 	void LD(WORD _address, BYTE operand);
 	void ADD(BYTE operand); //Result always in A
 	void ADD(WORD operand); // Result always in HL
+	void ADC(BYTE* _register, BYTE* operand);
+	void ADC(BYTE* _register, BYTE operand);
+	void ADC(BYTE* _register, WORD operand);
 	void SUB(BYTE operand);
 	void SUB(WORD operand);
-	void SBC(BYTE operand);
-	void SBC(WORD operand);
+	void SBC(BYTE* _register, BYTE operand);
+	void SBC(BYTE* _register, WORD operand);
 	void INC(BYTE* _register);
 	void INC(BYTE* regLow, BYTE* regHigh);
 	void DEC(BYTE* _register);
 	void DEC(BYTE* regLow, BYTE* regHigh);
 	void BIT(BYTE* _register, BYTE bit);
 	void JR(bool condition, SBYTE address);
+	void XOR(BYTE operand);
+	void RET();
+	void RET(bool condition);
+	void PUSH(WORD address);
+	void POP(BYTE* regLow, BYTE* regHigh);
+	void CALL(bool condition, WORD addr);
 
 	//OpCode operations[0xFF];
 	bool noInc;
@@ -127,6 +131,7 @@ private:
 	void INC_DE_0x13();
 	void RLA_0x17();
 	void AND_C_0x1A();
+	void LD_E_d8_0x1E();
 	void JR_NZ_0x20();
 	void LD_HL_0x21();
 	void LD_HL_PLUS_0x22();
@@ -137,8 +142,10 @@ private:
 	void INC_A_0x3C();
 	void DEC_A_0x3D();
 	void LD_A_d8_0x3E();
-	void LD_C_A_0x4F();
+	void LD_C_A_0x4F();	
+	void LD_D_A_0x57();
 	void LD_HL_H_0x66();
+	void LD_H_A_0x67();
 	void LD_pHL_A_0x77();
 	void LD_A_E_0x7B();
 	void ADD_A_B_0x80();
@@ -154,6 +161,8 @@ private:
 	void LD_pC_A_0xE2();
 	void LD_pa16_A_0xEA();
 	void LDH_pa8_A_0xE0();
+	void LDH_0xF0();
+	void DI_0xF3();
 	void CP_d8_0xFE();
 	void BIT_H_7_0xCB7C();
 	void RL_C_0xCB11();

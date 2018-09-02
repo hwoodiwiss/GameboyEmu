@@ -1,30 +1,12 @@
-#include "MMU.h"
-#include "CPU.h"
-#include <stdio.h>
+#include "Gameboy.h"
+#include "Shared.h"
 
 int main(void)
 {
-	MMU* mmu = new MMU();
-	CPU cpu = CPU(mmu);
-	cpu.Boot();
-	bool running = true;
-	while (running)
+	std::unique_ptr<Gameboy> gameboy(new Gameboy());
+	if (gameboy->LoadROM("C:\\Users\\secro\\source\\repos\\GameboyEmu\\GameboyEmu\\Game.bin"))
 	{
-		try
-		{
-			cpu.Tick();
-#if(_DEBUG)
-			//cpu.DrawState();
-#endif
-		}
-		catch (WORD opCodeAndPC)
-		{
-			BYTE opCode;
-			BYTE PC;
-			WordToBytes(opCode, PC, opCodeAndPC);
-			printf("Operation not implemented!\nTalk to Hugo.\nOpcode: %02X\nProgram Counter: H: %02X D: %d\n", opCode, PC, PC);
-			running = false;
-		}
+		gameboy->Run();
 	}
 
 	printf("Press any key to exit...");

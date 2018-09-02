@@ -5,7 +5,7 @@ BYTE f_Subtract = 0x40;
 BYTE f_HalfCarry = 0x20;
 BYTE f_Carry = 0x10;
 
-CPU::CPU(MMU *mmu)
+CPU::CPU(std::shared_ptr<MMU> mmu)
 {
 	A, F, B, C, D, E, H, L = 0;
 	_mmu = mmu;
@@ -34,6 +34,7 @@ CPU::CPU(MMU *mmu)
 	RegInstruction(0x0013, &CPU::INC_DE_0x13);
 	RegInstruction(0x0017, &CPU::RLA_0x17);
 	RegInstruction(0x001A, &CPU::AND_C_0x1A);
+	RegInstruction(0x001E, &CPU::LD_E_d8_0x1E);
 	RegInstruction(0x0020, &CPU::JR_NZ_0x20);
 	RegInstruction(0x0021, &CPU::LD_HL_0x21);
 	RegInstruction(0x0022, &CPU::LD_HL_PLUS_0x22);
@@ -45,7 +46,9 @@ CPU::CPU(MMU *mmu)
 	RegInstruction(0x003D, &CPU::DEC_A_0x3D);
 	RegInstruction(0x003E, &CPU::LD_A_d8_0x3E);
 	RegInstruction(0x004F, &CPU::LD_C_A_0x4F);
+	RegInstruction(0x0057, &CPU::LD_D_A_0x57);
 	RegInstruction(0x0066, &CPU::LD_HL_H_0x66);
+	RegInstruction(0x0067, &CPU::LD_H_A_0x67);
 	RegInstruction(0x0077, &CPU::LD_pHL_A_0x77);
 	RegInstruction(0x007B, &CPU::LD_A_E_0x7B);
 	RegInstruction(0x0080, &CPU::ADD_A_B_0x80);
@@ -61,7 +64,8 @@ CPU::CPU(MMU *mmu)
 	RegInstruction(0x00E1, &CPU::POP_HL_0xE1);
 	RegInstruction(0x00E2, &CPU::LD_pC_A_0xE2);
 	RegInstruction(0x00EA, &CPU::LD_pa16_A_0xEA);
-	RegInstruction(0x0020, &CPU::JR_NZ_0x20);
+	RegInstruction(0x00F0, &CPU::LDH_0xF0);
+	RegInstruction(0x00F3, &CPU::DI_0xF3);
 	RegInstruction(0x00FE, &CPU::CP_d8_0xFE);
 
 	//CB Page instructions
@@ -125,9 +129,10 @@ void CPU::Tick()
 #if(_DEBUG)
 void CPU::DrawState()
 {
-	system("CLS");
+	ClearScreen();
 	printf("WARNING! Debug output slows operation SIGNIFICANTLY.\nGameboy assembly loops are painfully slow.\nUse release build to test at real/near real performance.\n");
 	printf("A = D:%u H:%02X | F = D:%u H:%02X\nB = D:%u H:%02X | C = D:%u H: %02X\nD = D:%u H:%02X | E = D:%u H:%02X\nH = D:%u H:%02X | L = D:%u H:%02X\n_______________________________\n    PC = D:%u H:%04X\n    SP = D:%u H:%04X\n    BC = D:%u H:%04X\n    DE = D:%u H:%04X\n    HL = D:%u H:%04X\n\n\nLast Op: %04X\n", A, A, F, F, B, B, C, C, D, D, E, E, H, H, L, L, _PC, _PC, _SP, _SP, BytesToWord(C, B), BytesToWord(C, B), BytesToWord(E, D), BytesToWord(E, D), BytesToWord(L, H), BytesToWord(L, H), prevOp);
+	Sleep(1);
 }
 #endif
 
@@ -329,10 +334,18 @@ void CPU::AND_C_0x1A()
 	F &= ~(f_Carry | f_Subtract);
 }
 
+void CPU::LD_E_d8_0x1E()
+{
+	clock += 8;
+	LD(&E, _mmu->ReadByte(_PC + 1));
+	_PC++;
+}
+
 void CPU::JR_NZ_0x20()
 {
 	SBYTE operand = _mmu->ReadByte(_PC + 1);
-	JR(((F & f_Zero) != f_Zero), operand);
+	bool cnd = ((F & f_Zero) != f_Zero);
+	JR(cnd, operand);
 }
 void CPU::LD_HL_0x21()
 {
@@ -405,10 +418,22 @@ void CPU::LD_C_A_0x4F()
 	LD(&C, A);
 }
 
+void CPU::LD_D_A_0x57()
+{
+	clock += 4;
+	LD(&D, A);
+}
+
 void CPU::LD_HL_H_0x66()
 {
 	LD(&H, _mmu->ReadByte(BytesToWord(L, H)));
 	clock += 8;
+}
+
+void CPU::LD_H_A_0x67()
+{
+	clock += 4;
+	LD(&H, A);
 }
 
 void CPU::LD_pHL_A_0x77()
@@ -431,34 +456,19 @@ void CPU::ADD_A_B_0x80()
 
 void CPU::SBC_A_A_0x9F()
 {
-	SBC(A);
+	SBC(&A, A);
 	clock += 4;
 }
 
 void CPU::XOR_A_0xAF()
 {
-	A ^= A;
-	if (A == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Carry;
-	F &= ~f_HalfCarry;
-	F &= ~f_Subtract;
+	XOR(A);
 	clock += 4;
 }
 
 void CPU::RET_NZ_0xC1()
 {
-	if (!((F & f_Zero) == f_Zero))
-	{
-		_PC = stackPop();
-		clock += 20;
-	}
-	else
-	{
-		clock += 8;
-	}
+	RET(!((F & f_Zero) == f_Zero));
 }
 
 void CPU::PUSH_BC_0xC5()
@@ -484,44 +494,19 @@ void CPU::PREFIX_0xCB()
 void CPU::CALL_Z_0xCC()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	if ((F & f_Zero) != f_Zero)
-	{
-		clock += 24;
-		stackPush(_PC + 2);
-		noInc = true;
-		_PC = operand;
-	}
-	else
-	{
-		clock += 12;
-		_PC++;
-		_PC++;
-	}
+	CALL(((F & f_Zero) != f_Zero), operand);
 }
 
 void CPU::CALL_d16_0xCD()
 {
-	clock += 24;
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	stackPush(_PC + 2);
-	noInc = true;
-	_PC = operand;
+	CALL(true, operand);
 }
 
 void CPU::ADC_A_0xCE()
 {
 	BYTE operand = _mmu->ReadByte(_PC + 1);
-	if ((A & 0x8) == 0x8)
-	{
-		F |= f_HalfCarry;
-	}
-	A = A + operand;
-	if (A == 0)
-	{
-		F |= f_Zero;
-	}
-	clock += 8;
-	_PC++;
+	ADC(&A, operand);
 }
 
 void CPU::LDH_pa8_A_0xE0()
@@ -532,12 +517,23 @@ void CPU::LDH_pa8_A_0xE0()
 	_PC++;
 }
 
-void CPU::POP_HL_0xE1()
+void CPU::LDH_0xF0()
 {
 	clock += 12;
-	WORD var = _mmu->ReadWord(_SP);
-	DecSP();
-	WordToBytes(L, H, var);
+	WORD operand = 0xFF00 + _mmu->ReadByte(_PC + 1);
+	A = _mmu->ReadByte(operand);
+	_PC++;
+}
+
+void CPU::DI_0xF3()
+{
+	clock += 4;
+	_mmu->WriteByte(0xFFFF, 0);
+}
+
+void CPU::POP_HL_0xE1()
+{
+	POP(&L, &H);
 }
 
 void CPU::LD_pC_A_0xE2()
@@ -558,6 +554,8 @@ void CPU::LD_pa16_A_0xEA()
 void CPU::CP_d8_0xFE()
 {
 	BYTE operand = _mmu->ReadByte(_PC + 1);
+	BYTE valA = A;
+	valA -= operand;
 	
 	if (A == operand)
 	{
@@ -585,7 +583,10 @@ void CPU::CP_d8_0xFE()
 	{
 		F &= ~ f_HalfCarry;
 	}
-	
+	if (valA == 0)
+	{
+		F |= f_Zero;
+	}
 	F |= f_Subtract;
 	_PC++;
 }
@@ -623,7 +624,7 @@ void CPU::LD(BYTE * _register, BYTE operand)
 void CPU::LD(BYTE * regLow, BYTE * regHigh, WORD operand)
 {
 	(*regLow) = (BYTE)operand;
-	(*regHigh) = (BYTE)operand >> 8;
+	(*regHigh) = (BYTE)(operand >> 8);
 }
 
 void CPU::LD(WORD _address, BYTE operand)
@@ -671,6 +672,40 @@ void CPU::ADD(WORD operand)
 	F &= ~f_Subtract;
 }
 
+void CPU::ADC(BYTE * _register, BYTE* operand)
+{
+	if (((*_register) & 0x8) == 0x8)
+	{
+		F |= f_HalfCarry;
+	}
+	(*_register) = (*_register) + (*operand);
+	if ((*_register) == 0)
+	{
+		F |= f_Zero;
+	}
+	clock += 4;
+	_PC++;
+}
+
+void CPU::ADC(BYTE * _register, BYTE operand)
+{
+	if (((*_register) & 0x8) == 0x8)
+	{
+		F |= f_HalfCarry;
+	}
+	(*_register) = (*_register) + operand;
+	if ((*_register) == 0)
+	{
+		F |= f_Zero;
+	}
+	clock += 8;
+	_PC++;
+}
+
+void CPU::ADC(BYTE * _register, WORD operand)
+{
+}
+
 void CPU::SUB(BYTE operand)
 {
 }
@@ -679,21 +714,21 @@ void CPU::SUB(WORD operand)
 {
 }
 
-void CPU::SBC(BYTE operand)
+void CPU::SBC(BYTE* _register, BYTE operand)
 {
-	if ((A & 0x10) == 0x10)
+	if (((*_register) & 0x10) == 0x10)
 	{
 		F |= f_HalfCarry;
 	}
-	A -= operand;
-	if (A == 0)
+	(*_register) -= operand;
+	if ((*_register) == 0)
 	{
 		F |= f_Zero;
 	}
 	F |= f_Subtract;
 }
 
-void CPU::SBC(WORD operand)
+void CPU::SBC(BYTE* _register, WORD operand)
 {
 }
 
@@ -756,5 +791,67 @@ void CPU::JR(bool condition, SBYTE offset)
 	{
 		_PC++;
 		clock += 8;
+	}
+}
+
+void CPU::XOR(BYTE operand)
+{
+	A ^= operand;
+	if (A == 0)
+	{
+		F |= f_Zero;
+	}
+	F &= ~f_Carry;
+	F &= ~f_HalfCarry;
+	F &= ~f_Subtract;
+}
+
+void CPU::RET()
+{
+	_PC = stackPop();
+	clock += 16;
+}
+
+void CPU::RET(bool condition)
+{
+	if (condition)
+	{
+		_PC = stackPop();
+		clock += 20;
+	}
+	else
+	{
+		clock += 8;
+	}
+}
+
+void CPU::PUSH(WORD address)
+{
+	stackPush(address);
+	clock+=16;
+}
+
+void CPU::POP(BYTE * regLow, BYTE * regHigh)
+{
+	clock += 12;
+	WORD var = _mmu->ReadWord(_SP);
+	DecSP();
+	WordToBytes((*regLow), (*regHigh), var);
+}
+
+void CPU::CALL(bool condition, WORD addr)
+{
+	if (condition)
+	{
+		clock += 24;
+		stackPush(_PC + 2);
+		noInc = true;
+		_PC = addr;
+	}
+	else
+	{
+		clock += 12;
+		_PC++;
+		_PC++;
 	}
 }

@@ -3,25 +3,30 @@
 #include "Shared.h"
 #include "Bootstrap.h"
 
+
 class MMU
 {
 
 public:
 	MMU();
-	~MMU();
 
 	void LoadBootstrap();
-	void LoadGraphic();
+
+	bool LoadROM(const char* fileName);
+	bool LoadROM(char* fileName);
 
 	void WriteByte(WORD addr, BYTE val);
 	void WriteWord(WORD addr, WORD val);
 
+	void WriteWordBellow(WORD addr, WORD val);
+
 	BYTE ReadByte(WORD addr);
 	WORD ReadWord(WORD addr);
 
-private:
-	BYTE memory[0xFFFF];
-	WORD memAllocator;
+	WORD ReadWordBellow(WORD addr);
 
-	bool exposeBootstrap;
+private:
+	std::unique_ptr<BYTE[]> memory;
+
+	BYTE romPage;
 };
