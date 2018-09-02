@@ -149,14 +149,14 @@ WORD CPU::GetSP()
 
 void CPU::stackPush(WORD val)
 {
+	_mmu->WriteWord(_SP, val);
 	IncSP();
-	_mmu->WriteWordBellow(_SP, val);
 }
 
 WORD CPU::stackPop()
 {
+	WORD val = _mmu->ReadWord(_SP);
 	DecSP();
-	WORD val = _mmu->ReadWordBellow(_SP);
 	return val;
 }
 
