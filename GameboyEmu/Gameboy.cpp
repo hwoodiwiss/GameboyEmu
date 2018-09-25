@@ -23,10 +23,10 @@ bool Gameboy::LoadROM(char* fileName)
 void Gameboy::Run()
 {
 	cpu->Boot();
-	bool running = true;
+	running = true;
 	gpu_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::GPUProcess));
 	io_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::IOProcess));
-
+	
 	while (running)
 	{
 		try
@@ -54,7 +54,7 @@ void Gameboy::GPUProcess()
 {
 	while (running)
 	{
-		printf("Yay");
+		printf("GPU");
 	}
 }
 
@@ -62,6 +62,6 @@ void Gameboy::IOProcess()
 {
 	while (running)
 	{
-		printf("Yay");
+		printf("IO");
 	}
 }

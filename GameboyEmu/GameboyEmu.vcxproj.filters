@@ -42,7 +42,6 @@
     <ClCompile Include="Windows.cpp">
       <Filter>Window</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp" />
     <ClCompile Include="Gameboy.cpp">
       <Filter>Gameboy</Filter>
     </ClCompile>
