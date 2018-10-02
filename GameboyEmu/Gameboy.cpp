@@ -24,8 +24,8 @@ void Gameboy::Run()
 {
 	cpu->Boot();
 	running = true;
-	gpu_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::GPUProcess));
-	io_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::IOProcess));
+	//gpu_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::GPUProcess));
+	//io_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::IOProcess));
 	
 	while (running)
 	{
@@ -33,7 +33,7 @@ void Gameboy::Run()
 		{
 			cpu->Tick();
 #if(_DEBUG)
-			//cpu->DrawState();
+			cpu->DrawState();
 #endif
 		}
 		catch (WORD opCodeAndPC)
@@ -54,7 +54,7 @@ void Gameboy::GPUProcess()
 {
 	while (running)
 	{
-		printf("GPU");
+
 	}
 }
 
@@ -62,6 +62,6 @@ void Gameboy::IOProcess()
 {
 	while (running)
 	{
-		printf("IO");
+
 	}
 }

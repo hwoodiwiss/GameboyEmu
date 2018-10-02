@@ -29,4 +29,5 @@ private:
 	std::unique_ptr<BYTE[]> memory;
 
 	BYTE romPage;
+	bool bootromEnabled;
 };

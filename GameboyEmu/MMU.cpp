@@ -5,6 +5,7 @@
 MMU::MMU()
 {
 	memory = std::unique_ptr<BYTE[]>(new BYTE[0xFFFF]);
+	bootromEnabled = false;
 	//LoadGraphic();
 }
 
@@ -77,6 +78,11 @@ bool MMU::LoadROM(char* fileName)
 
 void MMU::WriteByte(WORD addr, BYTE val)
 {
+
+	if (addr == 0xFF50)
+	{
+		bootromEnabled == false;
+	}
 	memory[addr] = val;
 }
 
@@ -106,6 +112,18 @@ void MMU::WriteWordBellow(WORD addr, WORD val)
 
 BYTE MMU::ReadByte(WORD addr)
 {
+	if (addr < 0x100)
+	{
+		if (bootromEnabled)
+		{
+			return BootstrapRom[addr];
+		}
+		else
+		{
+			return memory[addr];
+		}
+	}
+
 	return memory[addr];
 }
 
