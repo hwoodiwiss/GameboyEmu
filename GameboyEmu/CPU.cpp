@@ -5,13 +5,16 @@ BYTE f_Subtract = 0x40;
 BYTE f_HalfCarry = 0x20;
 BYTE f_Carry = 0x10;
 
-CPU::CPU(std::shared_ptr<MMU> mmu)
+CPU::CPU(MMU* mmu)
 {
-	A, F, B, C, D, E, H, L = 0;
+	A = 0, F = 0, B = 0, C = 0, D = 0, E = 0, H = 0, L = 0;
+	IF = 0, IME = 0, _SP = 0;
 	_mmu = mmu;
 	_PC = 0;
 	clock = 0;
 	noInc = true;
+	HALT = false;
+
 	//instruction = new Instruction("ADD", [](BYTE &A, BYTE x, BYTE y) {A = x + y; });
 	RegInstruction(0x0000, &CPU::NOP_0x00);
 	RegInstruction(0x0001, &CPU::LD_BC_d16_0x01);

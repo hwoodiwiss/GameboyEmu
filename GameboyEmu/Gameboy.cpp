@@ -1,13 +1,13 @@
 #include "Gameboy.h"
 
-std::shared_ptr<MMU> Gameboy::mmu;
+MMU* Gameboy::mmu;
 bool Gameboy::running;
 
 Gameboy::Gameboy()
 {
 	ROMLoaded = false;
-	mmu = std::shared_ptr<MMU>(new MMU());
-	cpu = std::unique_ptr<CPU>(new CPU(mmu));
+	mmu = new MMU();
+	cpu = new CPU(mmu);
 }
 
 bool Gameboy::LoadROM(const char* fileName)

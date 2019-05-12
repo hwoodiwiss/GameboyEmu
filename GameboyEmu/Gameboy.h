@@ -20,9 +20,9 @@ private:
 
 
 	bool ROMLoaded;
-	static std::shared_ptr<MMU> mmu;
-	std::unique_ptr<CPU> cpu;
-	std::unique_ptr<std::thread> io_thread;
-	std::unique_ptr<std::thread> gpu_thread;
+	static MMU* mmu;
+	CPU* cpu;
+	std::thread* io_thread;
+	std::thread* gpu_thread;
 	static bool running;
 };

@@ -21,7 +21,7 @@ public:
 		InstructionFunc function;
 	};
 
-	CPU(std::shared_ptr<MMU>);
+	CPU(MMU*);
 	void RegInstruction(WORD opCode, InstructionFunc function);
 	~CPU();
 
@@ -77,7 +77,7 @@ private:
 	Instruction cbPageInstructions[0xFF];
 
 	//Memory manager
-	std::shared_ptr<MMU> _mmu;
+	MMU* _mmu;
 	
 	//Instructions
 
