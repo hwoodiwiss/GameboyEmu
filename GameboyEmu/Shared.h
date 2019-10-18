@@ -8,6 +8,7 @@
 #include <thread>
 
 #define WIN32_LEAN_AND_MEAN
+#define VERBOSE 0
 
 typedef unsigned char BYTE;
 typedef signed char SBYTE;
@@ -32,3 +33,14 @@ const BYTE scrollingGraphic[48] = { 0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x
 //Which gives: 00001011 11100000
 #define BytesToWord(low, high) (WORD)((low & 0xFF)|(high << 8))
 #define WordToBytes(low, high, word) low = (BYTE)word; high = (BYTE)(word >> 8)
+
+#define BinStr "%c%c%c%c%c%c%c%c"
+#define ByteToBinString(val) \
+  (val & 0x80 ? '1' : '0'), \
+  (val & 0x40 ? '1' : '0'), \
+  (val & 0x20 ? '1' : '0'), \
+  (val & 0x10 ? '1' : '0'), \
+  (val & 0x08 ? '1' : '0'), \
+  (val & 0x04 ? '1' : '0'), \
+  (val & 0x02 ? '1' : '0'), \
+  (val & 0x01 ? '1' : '0')

@@ -57,4 +57,9 @@
       <Filter>Gameboy</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="bootstrap.asm.txt">
+      <Filter>Gameboy</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

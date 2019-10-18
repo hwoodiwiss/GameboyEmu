@@ -134,6 +134,9 @@
     <None Include="Game.bin" />
     <None Include="bootstrap.bin" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="bootstrap.asm.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

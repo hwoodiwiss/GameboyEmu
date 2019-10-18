@@ -32,7 +32,7 @@ void Gameboy::Run()
 		try
 		{
 			cpu->Tick();
-#if(_DEBUG)
+#if(_DEBUG && VERBOSE)
 			cpu->DrawState();
 #endif
 		}
@@ -46,8 +46,8 @@ void Gameboy::Run()
 		}
 	}
 
-	gpu_thread->join();
-	io_thread->join();
+	//gpu_thread->join();
+	//io_thread->join();
 }
 
 void Gameboy::GPUProcess()
