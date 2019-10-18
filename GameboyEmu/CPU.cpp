@@ -14,8 +14,7 @@ CPU::CPU(MMU* mmu)
 	clock = 0;
 	noInc = true;
 	HALT = false;
-
-	//instruction = new Instruction("ADD", [](BYTE &A, BYTE x, BYTE y) {A = x + y; });
+	
 	RegInstruction(0x0000, &CPU::NOP_0x00);
 	RegInstruction(0x0001, &CPU::LD_BC_d16_0x01);
 	RegInstruction(0x0002, &CPU::LD_pBC_A_0x02);
@@ -129,17 +128,18 @@ void CPU::Tick()
 
 }
 
-#if(_DEBUG && VERBOSE)
 void CPU::DrawState()
 {
-	ClearScreen();
-	printf("WARNING! Debug output slows operation SIGNIFICANTLY.\nGameboy assembly loops are painfully slow.\nUse release build to test at real/near real performance.\n");
-	printf("A = D:%u H:%02X B:" BinStr " | F = D:%u H:%02X B:" BinStr "\nB = D:%u H:%02X B:" BinStr " | C = D:%u H: %02X B:" BinStr "\nD = D:%u H:%02X B:" BinStr \
-		" | E = D:%u H:%02X B:" BinStr "\nH = D:%u H:%02X B:" BinStr " | L = D:%u H:%02X B:" BinStr "\n_______________________________\n    PC = D:%u H:%04X\n \
+	if (m_DrawState)
+	{
+		ClearScreen();
+		printf("WARNING! Debug output slows operation SIGNIFICANTLY.\nGameboy assembly loops are painfully slow.\nUse release build to test at real/near real performance.\n");
+		printf("A = D:%u H:%02X B:" BinStr " | F = D:%u H:%02X B:" BinStr "\nB = D:%u H:%02X B:" BinStr " | C = D:%u H: %02X B:" BinStr "\nD = D:%u H:%02X B:" BinStr \
+			" | E = D:%u H:%02X B:" BinStr "\nH = D:%u H:%02X B:" BinStr " | L = D:%u H:%02X B:" BinStr "\n_______________________________\n    PC = D:%u H:%04X\n \
    SP = D:%u H:%04X\n    BC = D:%u H:%04X\n    DE = D:%u H:%04X\n    HL = D:%u H:%04X\n\n\nLast Op: %04X\n", A, A, ByteToBinString(A), F, F, ByteToBinString(F), B, B, ByteToBinString(B), C, C, ByteToBinString(C), D, D, ByteToBinString(D), E, E, ByteToBinString(E), H, H, ByteToBinString(H), L, L, ByteToBinString(L), _PC, _PC, _SP, _SP, BytesToWord(C, B), BytesToWord(C, B), BytesToWord(E, D), BytesToWord(E, D), BytesToWord(L, H), BytesToWord(L, H), prevOp);
-	Sleep(1);
+		Sleep(1);
+	}
 }
-#endif
 
 void CPU::IncSP()
 {
@@ -599,12 +599,7 @@ void CPU::CP_d8_0xFE()
 //CB Page Instructions
 void CPU::BIT_H_7_0xCB7C()
 {
-	BYTE bitmask = 0x7F;
-	F ^= (~(H << (BYTE)7) ^ F) & ((BYTE)1 << (BYTE)7);
-	//F ^= ((H | bitmask) & 0x80);
-	F &= ~f_Subtract;
-	F |= f_HalfCarry;
-	clock += 8;
+	BIT(&H, 7);
 }
 
 void CPU::RL_C_0xCB11()
@@ -712,9 +707,20 @@ void CPU::ADC(BYTE * _register, WORD operand)
 {
 }
 
-void CPU::BIT(BYTE* Register, BYTE bit)
+void CPU::BIT(BYTE* _register, BYTE nBit)
 {
-
+	BYTE nMask = ((BYTE)1 << (BYTE)nBit);
+	if (((*_register) & nMask) == nMask)
+	{
+		F &= ~nMask;
+	}
+	else
+	{
+		F |= nMask;
+	}
+	F &= ~f_Subtract;
+	F |= f_HalfCarry;
+	clock += 4;
 }
 
 void CPU::SUB(BYTE operand)
@@ -783,10 +789,6 @@ void CPU::DEC(BYTE * regLow, BYTE * regHigh)
 	WORD val = BytesToWord((*regLow), (*regHigh));
 	val--;
 	WordToBytes((*regLow), (*regHigh), val);
-}
-
-void CPU::BIT(BYTE * _register, BYTE bit)
-{
 }
 
 void CPU::JR(bool condition, SBYTE offset)

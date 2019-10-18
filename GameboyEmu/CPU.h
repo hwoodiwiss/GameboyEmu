@@ -69,6 +69,9 @@ private:
 	bool IME;
 	bool HALT;
 
+	//Set this to true in the debugger if you want to draw the state.
+	bool m_DrawState = false;
+
 #if(_DEBUG)
 	WORD prevOp;
 #endif

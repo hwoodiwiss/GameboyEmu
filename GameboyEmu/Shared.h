@@ -8,7 +8,7 @@
 #include <thread>
 
 #define WIN32_LEAN_AND_MEAN
-#define VERBOSE 0
+#define VERBOSE 1
 
 typedef unsigned char BYTE;
 typedef signed char SBYTE;

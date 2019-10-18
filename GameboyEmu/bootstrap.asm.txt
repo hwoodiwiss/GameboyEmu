@@ -1,15 +1,28 @@
 0000	0x0031	LD SP (d16)	0xFFFE	65534 --Sets the stack pointer to the end of the stack
 0003	0x00AF	XOR A --Sets F to 0x80 (10000000)
-0004	0x0021	LD HL (d16)	0x9FFF	40959 --Sets HL to 40959
+0004	0x0021	LD HL d16	0x9FFF	40959 --Sets HL to 40959
 0007	0x0032	LD (HL-) A --Write value of A to memory pointed too by HL; Decrement HL
 0008	0x3B7C	BIT 7,H --Opposite of bit 7 pf H is written to Z (F Bit 7); C is preserved, N is reset H is set;
 0010	0x0020	JR NZ,r8	0xFB	-5 --If Not Z, Add -5 to PC (JR Is Jump Relative, presumably and NZ Not Zero)
 
 ###
-Instructions at 7, 8 and 10 serve to set mem addresses 9FFF to 0
+Instructions at 7, 8 and 10 serve to set values at mem addresses 9FFF to 7FFF to 0
 Psuedocode would be:
 do
 {
 	(*HL) = A;
 	HL--;
 }while(HL > 0x7FFF)
+
+0012	0x0021	LD HL d16	0xFF26	65318 --Loads address 0xFF26 into HL
+0015	0x000E	LD C d8		0x11	17 --Loads value 0x11 into C
+0017	0x003E	LD A d8		0x80	128 --Loads Value 0x80 into A
+0019	0x0032	LD (HL-) A	--Write value of A to memory pointed too by HL; Decrement HL (0xFF26 = 0x80, HL = 0xFF25)
+0020	0x00E2	LD (C) A	--Write value of A to memory at (0xFF00 + val of C) in this case 0xFF11 = 0x80
+0021	0x000C	INC C		--Increments value of C
+0022	0x003E	LD A d8		0xF3	243 --Loads value 0xF3 into A
+0024	0x00E2	LD (C) A	--Write value of A to memory at (0xFF00 + val of C) in this case 0xFF12 = 0xF3
+0025	0x0032	LD (HL-) A	--Write value of A to memory pointed too by HL; Decrement HL (0xFF25 = 0xF3, HL = 0xFF22)
+0026	0x003E	LD A d8		0x77	119 --Loads value 0x77 into A
+0028	0x0077	LD (HL) A	--Write value of A to memory pointed at by HL. (0xFF24 = 0x77)
+0029	0x003E	LD A d8		0xFC	252 --Loads value 0xFC into A
