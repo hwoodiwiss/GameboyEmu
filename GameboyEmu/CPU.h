@@ -58,8 +58,42 @@ private:
 		SP is the stack pointer
 		PC is the Program Counter
 		Any 2 neighbouring 8-bit registers can be used to store a 16 bit value
+
+		Implementation notes:
+		Registers are defined as an anonymous union with an anonymous struct containing each of the registers.
+
+		This means you can access the registers vals as a single item with the combined name.
+
+		The registers are in reverse order, becaus endian.
 	*/
-	BYTE A, F, B, C, D, E, H, L;
+	union {
+		struct {
+			BYTE F;
+			BYTE A;
+		};
+		WORD AF;
+	};
+	union {
+		struct {
+			BYTE C;
+			BYTE B;
+		};
+		WORD BC;
+	};
+	union {
+		struct {
+			BYTE E;
+			BYTE D;
+		};
+		WORD DE;
+	};
+	union {
+		struct {
+			BYTE L;
+			BYTE H;
+		};
+		WORD HL;
+	};
 
 	WORD _SP, _PC;
 
@@ -85,7 +119,7 @@ private:
 	//Instructions
 
 	void LD(BYTE* _register, BYTE operand);
-	void LD(BYTE* regLow, BYTE* regHigh, WORD operand);
+	void LD(WORD* _reg16, WORD operand);
 	void LD(WORD _address, BYTE operand);
 	void ADD(BYTE operand); //Result always in A
 	void ADD(WORD operand); // Result always in HL

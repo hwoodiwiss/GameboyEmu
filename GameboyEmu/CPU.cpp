@@ -7,7 +7,7 @@ BYTE f_Carry = 0x10;
 
 CPU::CPU(MMU* mmu)
 {
-	A = 0, F = 0, B = 0, C = 0, D = 0, E = 0, H = 0, L = 0;
+	AF = 0, BC = 0, DE = 0, HL = 0;
 	IF = 0, IME = 0, _SP = 0;
 	_mmu = mmu;
 	_PC = 0;
@@ -181,7 +181,7 @@ void CPU::LD_BC_d16_0x01()
 {
 	clock += 12;
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	LD(&C, &B, operand);
+	LD(&BC, operand);
 	_PC += 2;
 }
 
@@ -293,7 +293,7 @@ void CPU::STOP_0x10()
 void CPU::LD_DE_d16_0x11()
 {
 	clock += 12;
-	LD(&E, &D, _mmu->ReadWord(_PC + 1));
+	LD(&DE, _mmu->ReadWord(_PC + 1));
 	_PC += 2;
 }
 
@@ -356,7 +356,7 @@ void CPU::LD_HL_0x21()
 {
 	clock += 12;
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	LD(&L, &H, operand);
+	LD(&HL, operand);
 	_PC += 2;
 }
 
@@ -622,10 +622,9 @@ void CPU::LD(BYTE * _register, BYTE operand)
 	(*_register) = operand;
 }
 
-void CPU::LD(BYTE * regLow, BYTE * regHigh, WORD operand)
+void CPU::LD(WORD* _reg16, WORD operand)
 {
-	(*regLow) = (BYTE)operand;
-	(*regHigh) = (BYTE)(operand >> 8);
+	(*_reg16) = operand;
 }
 
 void CPU::LD(WORD _address, BYTE operand)
