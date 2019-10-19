@@ -7,4 +7,5 @@ Once we've managed this, I intend for the project to move in a more complex dire
 
 ### Resources
 [GameBoy Opcodes Summary](http://www.devrs.com/gb/files/opcodes.html)
+
 [GameBoy Opcodes Detail](http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html)
