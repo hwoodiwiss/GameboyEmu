@@ -20,12 +20,13 @@ public:
 	struct Instruction
 	{
 		BYTE opCode;
-		BYTE duration;
+		BYTE opDuration;
+		BYTE opSize;
 		InstructionFunc function;
 	};
 
 	CPU(MMU*);
-	void RegInstruction(WORD opCode, InstructionFunc function);
+	void RegInstruction(WORD opCode, InstructionFunc function, BYTE instructionSize, BYTE instructionDuration);
 	~CPU();
 
 	void Boot();
@@ -44,6 +45,7 @@ private:
 
 	void stackPush(WORD val);
 	WORD stackPop();
+
 	void IncSP();
 	void DecSP();
 
