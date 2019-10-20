@@ -88,7 +88,7 @@ private:
 	bool HALT;
 
 	//Set this to true in the debugger if you want to draw the state.
-	bool m_DrawState = true;
+	bool m_DrawState = false;
 
 	WORD prevOp;
 
@@ -123,6 +123,7 @@ private:
 	void RET(bool condition);
 	void PUSH(WORD address);
 	void POP(WORD* reg16);
+	void CALL(WORD addr);
 	void CALL(bool condition, WORD addr);
 
 	//OpCode operations[0xFF];

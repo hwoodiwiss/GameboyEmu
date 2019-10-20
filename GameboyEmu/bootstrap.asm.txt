@@ -2,7 +2,7 @@
 0003	0x00AF	XOR A --Sets F to 0x80 (10000000)
 0004	0x0021	LD HL d16	0x9FFF	40959 --Sets HL to 40959
 0007	0x0032	LD (HL-) A --Write value of A to memory pointed too by HL; Decrement HL
-0008	0x3B7C	BIT 7,H --Opposite of bit 7 pf H is written to Z (F Bit 7); C is preserved, N is reset H is set;
+0008	0xCB7C	BIT 7,H --Opposite of bit 7 pf H is written to Z (F Bit 7); C is preserved, N is reset H is set;
 0010	0x0020	JR NZ,r8	0xFB	-5 --If Not Z, Add -5 to PC (JR Is Jump Relative, presumably and NZ Not Zero)
 
 ###
@@ -26,3 +26,8 @@ do
 0026	0x003E	LD A d8		0x77	119 --Loads value 0x77 into A
 0028	0x0077	LD (HL) A	--Write value of A to memory pointed at by HL. (0xFF24 = 0x77)
 0029	0x003E	LD A d8		0xFC	252 --Loads value 0xFC into A
+0031	0x00E0	LDH (a8), A	0x47	71	--Loads Value of A (0xFC) into memory at 0xFF00 + 0x0047 (operand)
+0033	0x0011	LD DE, d16	0x0104	260	--Loads spanned register DE with 16bit value 0x0104
+0036	0x0021	LD HL, d16	0x8010	32784 --Loads value 0x8010 into HL
+0039	0x001A	LD A, (DE)	--Loads value at address (DE) into A (0x10)
+0040	0x00CD	CALL a16	0x0095	--Calls function in bootloader at address 0x95 (149)

@@ -30,6 +30,11 @@ CPU::CPU(MMU* mmu)
 	RegInstruction(0x000C, &CPU::INC_C_0x0C, 1, 4);
 	RegInstruction(0x000D, &CPU::DEC_C_0x0D, 1, 4);
 	RegInstruction(0x000E, &CPU::LD_C_d8_0x0E, 2, 8);
+
+	/*There was a hardware bug in the original GB and GBC where the Op directly after a STOP would be ignored.
+	  Nintendo reccomeded just putting a NOP after, as it will be skipped anyway, although, I get the feeling
+	  some crafty devs will have put ops here that they wanted skipped in the first iteration of a loop, that will
+	  be the op that gets jumped too*/
 	RegInstruction(0x0010, &CPU::STOP_0x10, 2, 4);
 	RegInstruction(0x0011, &CPU::LD_DE_d16_0x11, 3, 12);
 	RegInstruction(0x0012, &CPU::LD_pDE_A_0x12, 1, 8);
@@ -124,7 +129,9 @@ void CPU::Tick()
 	}
 	clock += op.opDuration;
 	(*this.*op.function)();
-	_PC += op.opSize;
+
+	if(!noInc)
+		_PC += op.opSize;
 }
 
 void CPU::ToggleDisplay()
@@ -372,7 +379,6 @@ void CPU::DEC_A_0x3D()
 void CPU::LD_A_d8_0x3E()
 {
 	LD(&A, _mmu->ReadByte(_PC + 1));
-	_PC++;
 }
 
 void CPU::LD_C_A_0x4F()
@@ -451,7 +457,7 @@ void CPU::CALL_Z_0xCC()
 void CPU::CALL_d16_0xCD()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	CALL(true, operand);
+	CALL(operand);
 }
 
 void CPU::ADC_A_0xCE()
@@ -464,14 +470,12 @@ void CPU::LDH_pa8_A_0xE0()
 {
 	WORD operand = 0xFF00 + _mmu->ReadByte(_PC + 1);
 	_mmu->WriteByte(operand, A);
-	_PC++;
 }
 
 void CPU::LDH_0xF0()
 {
 	WORD operand = 0xFF00 + _mmu->ReadByte(_PC + 1);
 	A = _mmu->ReadByte(operand);
-	_PC++;
 }
 
 void CPU::DI_0xF3()
@@ -535,7 +539,6 @@ void CPU::CP_d8_0xFE()
 		F |= f_Zero;
 	}
 	F |= f_Subtract;
-	_PC++;
 }
 
 //CB Page Instructions
@@ -546,8 +549,6 @@ void CPU::BIT_H_7_0xCB7C()
 
 void CPU::RL_C_0xCB11()
 {
-	clock += 8;
-
 	WORD tmp = (WORD)((C << 1) | ((F & f_Carry) >> 4));
 	C = (BYTE)tmp;
 	BYTE flag = (tmp >> 8);
@@ -624,8 +625,6 @@ void CPU::ADC(BYTE * _register, BYTE* operand)
 	{
 		F |= f_Zero;
 	}
-	clock += 4;
-	_PC++;
 }
 
 void CPU::ADC(BYTE * _register, BYTE operand)
@@ -639,8 +638,6 @@ void CPU::ADC(BYTE * _register, BYTE operand)
 	{
 		F |= f_Zero;
 	}
-	clock += 8;
-	_PC++;
 }
 
 void CPU::ADC(BYTE * _register, WORD operand)
@@ -777,6 +774,14 @@ void CPU::POP(WORD* reg16)
 	DecSP();
 	(*reg16) = var;
 }
+
+void CPU::CALL(WORD addr)
+{
+	stackPush(_PC + 1);
+	noInc = true;
+	_PC = addr;
+}
+
 
 //Conditional call
 void CPU::CALL(bool condition, WORD addr)
