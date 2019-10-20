@@ -39,14 +39,14 @@
     <ClCompile Include="CPU.cpp">
       <Filter>Gameboy</Filter>
     </ClCompile>
-    <ClCompile Include="Windows.cpp">
-      <Filter>Window</Filter>
-    </ClCompile>
     <ClCompile Include="Gameboy.cpp">
       <Filter>Gameboy</Filter>
     </ClCompile>
     <ClCompile Include="Shared.cpp">
       <Filter>Gameboy</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

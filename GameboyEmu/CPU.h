@@ -9,6 +9,9 @@ extern BYTE f_Subtract;
 extern BYTE f_HalfCarry;
 extern BYTE f_Carry;
 
+//Shorthand for creating a joint accessible register group
+#define CreateRegPair(high, low) union { struct { BYTE low; BYTE high;}; WORD high##low;}
+
 class CPU
 {
 public:
@@ -28,6 +31,8 @@ public:
 	void Boot();
 
 	void Tick();
+
+	void ToggleDisplay();
 
 #if(_DEBUG)
 	void DrawState();
@@ -66,34 +71,11 @@ private:
 
 		The registers are in reverse order, becaus endian.
 	*/
-	union {
-		struct {
-			BYTE F;
-			BYTE A;
-		};
-		WORD AF;
-	};
-	union {
-		struct {
-			BYTE C;
-			BYTE B;
-		};
-		WORD BC;
-	};
-	union {
-		struct {
-			BYTE E;
-			BYTE D;
-		};
-		WORD DE;
-	};
-	union {
-		struct {
-			BYTE L;
-			BYTE H;
-		};
-		WORD HL;
-	};
+
+	CreateRegPair(A, F);
+	CreateRegPair(B, C);
+	CreateRegPair(D, E);
+	CreateRegPair(H, L);
 
 	WORD _SP, _PC;
 
@@ -104,11 +86,9 @@ private:
 	bool HALT;
 
 	//Set this to true in the debugger if you want to draw the state.
-	bool m_DrawState = false;
+	bool m_DrawState = true;
 
-#if(_DEBUG)
 	WORD prevOp;
-#endif
 
 	Instruction instructions[0xFF];
 	Instruction cbPageInstructions[0xFF];
@@ -131,16 +111,16 @@ private:
 	void SBC(BYTE* _register, BYTE operand);
 	void SBC(BYTE* _register, WORD operand);
 	void INC(BYTE* _register);
-	void INC(BYTE* regLow, BYTE* regHigh);
+	void INC(WORD* reg16);
 	void DEC(BYTE* _register);
-	void DEC(BYTE* regLow, BYTE* regHigh);
+	void DEC(WORD* reg16);
 	void BIT(BYTE* _register, BYTE bit);
 	void JR(bool condition, SBYTE address);
 	void XOR(BYTE operand);
 	void RET();
 	void RET(bool condition);
 	void PUSH(WORD address);
-	void POP(BYTE* regLow, BYTE* regHigh);
+	void POP(WORD* reg16);
 	void CALL(bool condition, WORD addr);
 
 	//OpCode operations[0xFF];

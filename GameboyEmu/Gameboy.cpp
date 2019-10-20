@@ -5,9 +5,19 @@ bool Gameboy::running;
 
 Gameboy::Gameboy()
 {
+	HINSTANCE instance = GetModuleHandle(NULL);
 	ROMLoaded = false;
 	mmu = new MMU();
 	cpu = new CPU(mmu);
+	window = new Window(instance, "Gameboy Emu", true);
+	window->Add_OnKeydown([](WPARAM wparam, LPARAM lparam)
+		{
+			//Handle keydown events. Can't access non-static members of Gameboy, as that would need an internal "this" pointer as a hidden parameter
+			if (wparam == VK_SPACE)
+			{
+				running = false;
+			}
+		});
 }
 
 bool Gameboy::LoadROM(const char* fileName)
@@ -26,7 +36,7 @@ void Gameboy::Run()
 	running = true;
 	//gpu_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::GPUProcess));
 	//io_thread = std::unique_ptr<std::thread>(new std::thread(&Gameboy::IOProcess));
-	
+
 	while (running)
 	{
 		try

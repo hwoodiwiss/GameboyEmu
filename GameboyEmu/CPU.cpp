@@ -128,6 +128,11 @@ void CPU::Tick()
 
 }
 
+void CPU::ToggleDisplay()
+{
+	m_DrawState = !m_DrawState;
+}
+
 void CPU::DrawState()
 {
 	if (m_DrawState)
@@ -194,7 +199,7 @@ void CPU::LD_pBC_A_0x02()
 void CPU::INC_BC_0x03()
 {
 	clock += 8;
-	INC(&C, &B);
+	INC(&BC);
 }
 
 void CPU::INC_B_0x04()
@@ -258,7 +263,7 @@ void CPU::LD_A_pBC_0x0A()
 void CPU::DEC_BC_0x0B()
 {
 	clock += 8;
-	DEC(&C, &B);
+	DEC(&BC);
 }
 
 void CPU::INC_C_0x0C()
@@ -306,7 +311,7 @@ void CPU::LD_pDE_A_0x12()
 void CPU::INC_DE_0x13()
 {
 	clock += 8;
-	INC(&E, &D);
+	INC(&DE);
 }
 
 void CPU::RLA_0x17()
@@ -372,7 +377,7 @@ void CPU::LD_HL_PLUS_0x22()
 void CPU::INC_HL_0x23()
 {
 	clock += 8;
-	INC(&L, &H);
+	INC(&HL);
 }
 
 void CPU::JR_Z_r8_0x28()
@@ -538,7 +543,7 @@ void CPU::DI_0xF3()
 
 void CPU::POP_HL_0xE1()
 {
-	POP(&L, &H);
+	POP(&HL);
 }
 
 void CPU::LD_pC_A_0xE2()
@@ -762,11 +767,9 @@ void CPU::INC(BYTE * _register)
 	F &= ~f_Subtract;
 }
 
-void CPU::INC(BYTE * regLow, BYTE * regHigh)
+void CPU::INC(WORD * reg16)
 {
-	WORD val = BytesToWord((*regLow), (*regHigh));
-	val++;
-	WordToBytes((*regLow), (*regHigh), val);
+	(*reg16)++;
 }
 
 void CPU::DEC(BYTE * _register)
@@ -783,11 +786,9 @@ void CPU::DEC(BYTE * _register)
 	F |= f_Subtract;
 }
 
-void CPU::DEC(BYTE * regLow, BYTE * regHigh)
+void CPU::DEC(WORD* reg16)
 {
-	WORD val = BytesToWord((*regLow), (*regHigh));
-	val--;
-	WordToBytes((*regLow), (*regHigh), val);
+	(*reg16)--;
 }
 
 void CPU::JR(bool condition, SBYTE offset)
@@ -842,12 +843,12 @@ void CPU::PUSH(WORD address)
 	clock+=16;
 }
 
-void CPU::POP(BYTE * regLow, BYTE * regHigh)
+void CPU::POP(WORD* reg16)
 {
 	clock += 12;
 	WORD var = _mmu->ReadWord(_SP);
 	DecSP();
-	WordToBytes((*regLow), (*regHigh), var);
+	(*reg16) = var;
 }
 
 void CPU::CALL(bool condition, WORD addr)

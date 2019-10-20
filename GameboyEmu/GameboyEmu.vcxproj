@@ -128,7 +128,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MMU.cpp" />
     <ClCompile Include="Shared.cpp" />
-    <ClCompile Include="Windows.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Game.bin" />

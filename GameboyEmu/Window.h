@@ -12,7 +12,7 @@ class Window
 public:
 
 	//If runThreaded is false, the message loop should be created and handled in the calling thread.
-	Window(HINSTANCE appInstance, bool runThreaded);
+	Window(HINSTANCE appInstance, const char* WindowTitle, bool runThreaded);
 	~Window();
 
 	HWND GetHandle();
@@ -25,6 +25,9 @@ public:
 
 	void Add_OnExit(WndEvent handler);
 	void Remove_OnExit(WndEvent handler);
+
+	void Add_OnKeydown(WndEvent handler);
+	void Remove_OnKeydown(WndEvent handler);
 
 	bool is_running();
 
@@ -42,10 +45,12 @@ private:
 	std::vector<WndEvent> OnLoad;
 	std::vector<WndEvent> OnResize;
 	std::vector<WndEvent> OnExit;
+	std::vector<WndEvent> OnKeydown;
 
 	//Internal usage
 	ATOM m_pWndClass;
 	HWND m_wndHandle;
+	const char* WindowTitle;
 	std::thread* m_messageLoop;
 	bool m_running;
 	std::mutex m_lockRunning;
