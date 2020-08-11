@@ -190,7 +190,7 @@ void CPU::NOP_0x00()
 void CPU::LD_BC_d16_0x01()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	LD(&BC, operand);
+	LD(BC, operand);
 }
 
 void CPU::LD_pBC_A_0x02()
@@ -200,23 +200,23 @@ void CPU::LD_pBC_A_0x02()
 
 void CPU::INC_BC_0x03()
 {
-	INC(&BC);
+	INC(BC);
 }
 
 void CPU::INC_B_0x04()
 {
-	INC(&B);
+	INC(B);
 }
 
 void CPU::DEC_B_0x05()
 {
-	DEC(&B);
+	DEC(B);
 }
 
 void CPU::LD_B_d8_0x06()
 {
 	BYTE operand = _mmu->ReadByte(_PC + 1);
-	LD(&B, operand);
+	LD(B, operand);
 }
 
 void CPU::RLCA_0x07()
@@ -245,28 +245,28 @@ void CPU::ADD_HL_BC_0x09()
 
 void CPU::LD_A_pBC_0x0A()
 {
-	LD(&A, _mmu->ReadByte(BC));
+	LD(A, _mmu->ReadByte(BC));
 }
 
 void CPU::DEC_BC_0x0B()
 {
-	DEC(&BC);
+	DEC(BC);
 }
 
 void CPU::INC_C_0x0C()
 {
-	INC(&C);
+	INC(C);
 }
 
 void CPU::DEC_C_0x0D()
 {
-	DEC(&C);
+	DEC(C);
 }
 
 void CPU::LD_C_d8_0x0E()
 {
 	BYTE operand = _mmu->ReadByte(_PC + 1);
-	LD(&C, operand);
+	LD(C, operand);
 }
 
 void CPU::RRCA_0x0F()
@@ -280,7 +280,7 @@ void CPU::STOP_0x10()
 
 void CPU::LD_DE_d16_0x11()
 {
-	LD(&DE, _mmu->ReadWord(_PC + 1));
+	LD(DE, _mmu->ReadWord(_PC + 1));
 }
 
 void CPU::LD_pDE_A_0x12()
@@ -290,7 +290,7 @@ void CPU::LD_pDE_A_0x12()
 
 void CPU::INC_DE_0x13()
 {
-	INC(&DE);
+	INC(DE);
 }
 
 void CPU::RLA_0x17()
@@ -322,7 +322,7 @@ void CPU::AND_C_0x1A()
 
 void CPU::LD_E_d8_0x1E()
 {
-	LD(&E, _mmu->ReadByte(_PC + 1));
+	LD(E, _mmu->ReadByte(_PC + 1));
 }
 
 void CPU::JR_NZ_0x20()
@@ -334,7 +334,7 @@ void CPU::JR_NZ_0x20()
 void CPU::LD_HL_0x21()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	LD(&HL, operand);
+	LD(HL, operand);
 }
 
 void CPU::LD_HL_PLUS_0x22()
@@ -345,7 +345,7 @@ void CPU::LD_HL_PLUS_0x22()
 
 void CPU::INC_HL_0x23()
 {
-	INC(&HL);
+	INC(HL);
 }
 
 void CPU::JR_Z_r8_0x28()
@@ -368,37 +368,37 @@ void CPU::LD_HL_MINUS_0x32()
 
 void CPU::INC_A_0x3C()
 {
-	INC(&A);
+	INC(A);
 }
 
 void CPU::DEC_A_0x3D()
 {
-	DEC(&A);
+	DEC(A);
 }
 
 void CPU::LD_A_d8_0x3E()
 {
-	LD(&A, _mmu->ReadByte(_PC + 1));
+	LD(A, _mmu->ReadByte(_PC + 1));
 }
 
 void CPU::LD_C_A_0x4F()
 {
-	LD(&C, A);
+	LD(C, A);
 }
 
 void CPU::LD_D_A_0x57()
 {
-	LD(&D, A);
+	LD(D, A);
 }
 
 void CPU::LD_HL_H_0x66()
 {
-	LD(&H, _mmu->ReadByte(HL));
+	LD(H, _mmu->ReadByte(HL));
 }
 
 void CPU::LD_H_A_0x67()
 {
-	LD(&H, A);
+	LD(H, A);
 }
 
 void CPU::LD_pHL_A_0x77()
@@ -408,7 +408,7 @@ void CPU::LD_pHL_A_0x77()
 
 void CPU::LD_A_E_0x7B()
 {
-	LD(&A, E);
+	LD(A, E);
 }
 
 void CPU::ADD_A_B_0x80()
@@ -418,7 +418,7 @@ void CPU::ADD_A_B_0x80()
 
 void CPU::SBC_A_A_0x9F()
 {
-	SBC(&A, A);
+	SBC(A, A);
 }
 
 void CPU::XOR_A_0xAF()
@@ -463,7 +463,7 @@ void CPU::CALL_d16_0xCD()
 void CPU::ADC_A_0xCE()
 {
 	BYTE operand = _mmu->ReadByte(_PC + 1);
-	ADC(&A, operand);
+	ADC(A, operand);
 }
 
 void CPU::LDH_pa8_A_0xE0()
@@ -486,7 +486,7 @@ void CPU::DI_0xF3()
 
 void CPU::POP_HL_0xE1()
 {
-	POP(&HL);
+	POP(HL);
 }
 
 void CPU::LD_pC_A_0xE2()
@@ -544,7 +544,7 @@ void CPU::CP_d8_0xFE()
 //CB Page Instructions
 void CPU::BIT_H_7_0xCB7C()
 {
-	BIT(&H, 7);
+	BIT(H, 7);
 }
 
 void CPU::RL_C_0xCB11()
@@ -560,14 +560,14 @@ void CPU::RL_C_0xCB11()
 	F &= ~f_Zero;
 }
 
-void CPU::LD(BYTE * _register, BYTE operand)
+void CPU::LD(BYTE& _register, BYTE operand)
 {
-	(*_register) = operand;
+	_register = operand;
 }
 
-void CPU::LD(WORD* _reg16, WORD operand)
+void CPU::LD(WORD& _reg16, WORD operand)
 {
-	(*_reg16) = operand;
+	_reg16 = operand;
 }
 
 void CPU::LD(WORD _address, BYTE operand)
@@ -614,40 +614,27 @@ void CPU::ADD(WORD operand)
 	F &= ~f_Subtract;
 }
 
-void CPU::ADC(BYTE * _register, BYTE* operand)
+void CPU::ADC(BYTE& _register, BYTE& operand)
 {
-	if (((*_register) & 0x8) == 0x8)
+	if ((_register & 0x8) == 0x8)
 	{
 		F |= f_HalfCarry;
 	}
-	(*_register) = (*_register) + (*operand);
-	if ((*_register) == 0)
+	_register = _register + operand;
+	if (_register == 0)
 	{
 		F |= f_Zero;
 	}
 }
 
-void CPU::ADC(BYTE * _register, BYTE operand)
-{
-	if (((*_register) & 0x8) == 0x8)
-	{
-		F |= f_HalfCarry;
-	}
-	(*_register) = (*_register) + operand;
-	if ((*_register) == 0)
-	{
-		F |= f_Zero;
-	}
-}
-
-void CPU::ADC(BYTE * _register, WORD operand)
+void CPU::ADC(BYTE& _register, WORD operand)
 {
 }
 
-void CPU::BIT(BYTE* _register, BYTE nBit)
+void CPU::BIT(BYTE& _register, BYTE nBit)
 {
 	BYTE nMask = ((BYTE)1 << (BYTE)nBit);
-	if (((*_register) & nMask) == nMask)
+	if ((_register & nMask) == nMask)
 	{
 		F &= ~nMask;
 	}
@@ -667,32 +654,32 @@ void CPU::SUB(WORD operand)
 {
 }
 
-void CPU::SBC(BYTE* _register, BYTE operand)
+void CPU::SBC(BYTE& _register, BYTE operand)
 {
-	if (((*_register) & 0x10) == 0x10)
+	if ((_register & 0x10) == 0x10)
 	{
 		F |= f_HalfCarry;
 	}
-	(*_register) -= operand;
-	if ((*_register) == 0)
+	_register -= operand;
+	if (_register == 0)
 	{
 		F |= f_Zero;
 	}
 	F |= f_Subtract;
 }
 
-void CPU::SBC(BYTE* _register, WORD operand)
+void CPU::SBC(BYTE& _register, WORD operand)
 {
 }
 
-void CPU::INC(BYTE * _register)
+void CPU::INC(BYTE& _register)
 {
-	if (((*_register) & 0xF) == 0xF)
+	if ((_register & 0xF) == 0xF)
 	{
 		F |= f_HalfCarry;
 	}
-	(*_register)++;
-	if ((*_register) == 0)
+	_register++;
+	if (_register == 0)
 	{
 		F |= f_Zero;
 	}
@@ -701,29 +688,29 @@ void CPU::INC(BYTE * _register)
 
 //Increment a 16-bit register value.
 //TODO: Add soul-crushing flag manipulation
-void CPU::INC(WORD * reg16)
+void CPU::INC(WORD& reg16)
 {
-	(*reg16)++;
+	reg16++;
 }
 
 //8-bit decrement. Extra complex, as we have to decrement the value, and set all the required flags.
-void CPU::DEC(BYTE * _register)
+void CPU::DEC(BYTE& _register)
 {
-	if (((*_register) & 0x10) == 0x10)
+	if ((_register & 0x10) == 0x10)
 	{
 		F |= f_HalfCarry;
 	}
-	(*_register)--;
-	if ((*_register) == 0)
+	_register--;
+	if (_register == 0)
 	{
 		F |= f_Zero;
 	}
 	F |= f_Subtract;
 }
 
-void CPU::DEC(WORD* reg16)
+void CPU::DEC(WORD& reg16)
 {
-	(*reg16)--;
+	reg16--;
 }
 
 void CPU::JR(bool condition, SBYTE offset)
@@ -768,11 +755,11 @@ void CPU::PUSH(WORD address)
 	stackPush(address);
 }
 
-void CPU::POP(WORD* reg16)
+void CPU::POP(WORD& reg16)
 {
 	WORD var = _mmu->ReadWord(_SP);
 	DecSP();
-	(*reg16) = var;
+	reg16 = var;
 }
 
 void CPU::CALL(WORD addr)

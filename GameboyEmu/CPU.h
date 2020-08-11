@@ -100,29 +100,28 @@ private:
 	
 	//Instructions
 
-	void LD(BYTE* _register, BYTE operand);
-	void LD(WORD* _reg16, WORD operand);
+	void LD(BYTE& _register, BYTE operand);
+	void LD(WORD& _reg16, WORD operand);
 	void LD(WORD _address, BYTE operand);
 	void ADD(BYTE operand); //Result always in A
 	void ADD(WORD operand); // Result always in HL
-	void ADC(BYTE* _register, BYTE* operand);
-	void ADC(BYTE* _register, BYTE operand);
-	void ADC(BYTE* _register, WORD operand);
+	void ADC(BYTE& _register, BYTE& operand);
+	void ADC(BYTE& _register, WORD operand);
 	void SUB(BYTE operand);
 	void SUB(WORD operand);
-	void SBC(BYTE* _register, BYTE operand);
-	void SBC(BYTE* _register, WORD operand);
-	void INC(BYTE* _register);
-	void INC(WORD* reg16);
-	void DEC(BYTE* _register);
-	void DEC(WORD* reg16);
-	void BIT(BYTE* _register, BYTE bit);
+	void SBC(BYTE& _register, BYTE operand);
+	void SBC(BYTE& _register, WORD operand);
+	void INC(BYTE& _register);
+	void INC(WORD& reg16);
+	void DEC(BYTE& _register);
+	void DEC(WORD& reg16);
+	void BIT(BYTE& _register, BYTE bit);
 	void JR(bool condition, SBYTE address);
 	void XOR(BYTE operand);
 	void RET();
 	void RET(bool condition);
 	void PUSH(WORD address);
-	void POP(WORD* reg16);
+	void POP(WORD& reg16);
 	void CALL(WORD addr);
 	void CALL(bool condition, WORD addr);
 
