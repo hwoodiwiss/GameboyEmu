@@ -1,5 +1,5 @@
 ﻿#include "CppUnitTest.h"
-#include <GameboyEmu/CPU_Functions.h>
+#include <CPU/CPU_Functions.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

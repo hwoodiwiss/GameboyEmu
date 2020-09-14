@@ -1,5 +1,5 @@
-#include "Gameboy.h"
-#include "Shared.h"
+#include <Gameboy/Gameboy.h>
+#include <Shared.h>
 
 int main(void)
 {

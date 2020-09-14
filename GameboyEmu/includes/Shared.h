@@ -6,7 +6,7 @@
 #include <conio.h>
 #include <Windows.h>
 #include <thread>
-#include "Window.h"
+#include <Window/Window.h>
 
 #define WIN32_LEAN_AND_MEAN
 #define VERBOSE 1

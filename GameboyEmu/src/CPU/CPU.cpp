@@ -1,4 +1,4 @@
-#include "CPU.h"
+#include <CPU/CPU.h>
 
 BYTE f_Zero = 0x80;
 BYTE f_Subtract = 0x40;

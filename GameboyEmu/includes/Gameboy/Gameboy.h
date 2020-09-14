@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MMU.h"
-#include "CPU.h"
-#include "Shared.h"
+#include <MMU/MMU.h>
+#include <CPU/CPU.h>
+#include <Shared.h>
 #include <iostream>
 #include <fstream>
 

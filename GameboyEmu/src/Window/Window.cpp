@@ -1,4 +1,4 @@
-#include "Window.h"
+#include <Window/Window.h>
 #include <algorithm>
 
 Window::Window(HINSTANCE appInstance, const char* WindowTitle, bool runThreaded) : WindowTitle(WindowTitle)

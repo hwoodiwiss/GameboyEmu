@@ -1,5 +1,10 @@
-﻿#include "Shared.h"
-#include "MMU.h"
+﻿#include <Shared.h>
+#include <MMU/MMU.h>
+
+BYTE f_Zero = 0x80;
+BYTE f_Subtract = 0x40;
+BYTE f_HalfCarry = 0x20;
+BYTE f_Carry = 0x10;
 
 inline void LD(BYTE& _register, BYTE& operand)
 {
@@ -13,7 +18,7 @@ inline void LD(WORD& _reg16, WORD& operand)
 
 inline void LD(MMU&& mmu, WORD& _address, BYTE& operand)
 {
-	mmu->WriteByte(_address, operand);
+	mmu.WriteByte(_address, operand);
 }
 
 inline void ADD(BYTE& _register, BYTE& flagRegister, BYTE& operand)

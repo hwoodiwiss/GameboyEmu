@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MMU.h"
-#include "Shared.h"
+#include <MMU/MMU.h>
+#include <Shared.h>
 
 //Flag definitions for the F register. To add a flag, OR it in.
 extern BYTE f_Zero;

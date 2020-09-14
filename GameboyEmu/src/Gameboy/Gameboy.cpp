@@ -1,4 +1,4 @@
-#include "Gameboy.h"
+#include <Gameboy/Gameboy.h>
 
 MMU* Gameboy::mmu;
 bool Gameboy::running;
