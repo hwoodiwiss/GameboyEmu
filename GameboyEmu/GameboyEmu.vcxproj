@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CPU\CPU.cpp" />
+    <ClCompile Include="src\CPU\CPU_Functions.cpp" />
     <ClCompile Include="src\Gameboy\Gameboy.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MMU\MMU.cpp" />

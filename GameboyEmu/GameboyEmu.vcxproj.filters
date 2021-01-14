@@ -51,6 +51,7 @@
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
+    <ClCompile Include="src\CPU\CPU_Functions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\bootstrap.bin">
