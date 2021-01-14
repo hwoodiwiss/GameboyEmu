@@ -2,12 +2,7 @@
 
 #include <MMU/MMU.h>
 #include <Shared.h>
-
-//Flag definitions for the F register. To add a flag, OR it in.
-extern BYTE f_Zero;
-extern BYTE f_Subtract;
-extern BYTE f_HalfCarry;
-extern BYTE f_Carry;
+#include <CPU/CPU_Functions.h>
 
 //Shorthand for creating a joint accessible register group
 #define CreateRegPair(high, low) union { struct { BYTE low; BYTE high;}; WORD high##low;}
@@ -42,9 +37,6 @@ public:
 private:
 
 	WORD GetSP();
-
-	void stackPush(WORD val);
-	WORD stackPop();
 
 	void IncSP();
 	void DecSP();
@@ -98,33 +90,6 @@ private:
 	//Memory manager
 	MMU* _mmu;
 	
-	//Instructions
-
-	void LD(BYTE& _register, BYTE operand);
-	void LD(WORD& _reg16, WORD operand);
-	void LD(WORD _address, BYTE operand);
-	void ADD(BYTE operand); //Result always in A
-	void ADD(WORD operand); // Result always in HL
-	void ADC(BYTE& _register, BYTE& operand);
-	void ADC(BYTE& _register, WORD operand);
-	void SUB(BYTE operand);
-	void SUB(WORD operand);
-	void SBC(BYTE& _register, BYTE operand);
-	void SBC(BYTE& _register, WORD operand);
-	void INC(BYTE& _register);
-	void INC(WORD& reg16);
-	void DEC(BYTE& _register);
-	void DEC(WORD& reg16);
-	void BIT(BYTE& _register, BYTE bit);
-	void JR(bool condition, SBYTE address);
-	void XOR(BYTE operand);
-	void RET();
-	void RET(bool condition);
-	void PUSH(WORD address);
-	void POP(WORD& reg16);
-	void CALL(WORD addr);
-	void CALL(bool condition, WORD addr);
-
 	//OpCode operations[0xFF];
 	bool noInc;
 

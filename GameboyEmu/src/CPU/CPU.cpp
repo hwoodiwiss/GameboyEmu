@@ -1,10 +1,5 @@
 #include <CPU/CPU.h>
 
-BYTE f_Zero = 0x80;
-BYTE f_Subtract = 0x40;
-BYTE f_HalfCarry = 0x20;
-BYTE f_Carry = 0x10;
-
 CPU::CPU(MMU* mmu)
 {
 	AF = 0, BC = 0, DE = 0, HL = 0;
@@ -120,7 +115,7 @@ void CPU::Tick()
 	BYTE opCode = _mmu->ReadByte(_PC);
 
 	prevOp = opCode;
-
+	
 	Instruction op = instructions[opCode];
 	noInc = false;
 	if (op.function == 0)
@@ -167,20 +162,6 @@ WORD CPU::GetSP()
 	return _SP;
 }
 
-
-void CPU::stackPush(WORD val)
-{
-	_mmu->WriteWord(_SP, val);
-	IncSP();
-}
-
-WORD CPU::stackPop()
-{
-	WORD val = _mmu->ReadWord(_SP);
-	DecSP();
-	return val;
-}
-
 //Instructions Bellow, all 510 of them. :'(
 void CPU::NOP_0x00()
 {
@@ -200,17 +181,17 @@ void CPU::LD_pBC_A_0x02()
 
 void CPU::INC_BC_0x03()
 {
-	INC(BC);
+	INC(BC, F);
 }
 
 void CPU::INC_B_0x04()
 {
-	INC(B);
+	INC(B, F);
 }
 
 void CPU::DEC_B_0x05()
 {
-	DEC(B);
+	DEC(B, F);
 }
 
 void CPU::LD_B_d8_0x06()
@@ -240,7 +221,7 @@ void CPU::LD_pd16_SP_0x08()
 
 void CPU::ADD_HL_BC_0x09()
 {
-	ADD(BC);
+	ADD(HL, F, BC);
 }
 
 void CPU::LD_A_pBC_0x0A()
@@ -255,12 +236,12 @@ void CPU::DEC_BC_0x0B()
 
 void CPU::INC_C_0x0C()
 {
-	INC(C);
+	INC(C, F);
 }
 
 void CPU::DEC_C_0x0D()
 {
-	DEC(C);
+	DEC(C, F);
 }
 
 void CPU::LD_C_d8_0x0E()
@@ -290,7 +271,7 @@ void CPU::LD_pDE_A_0x12()
 
 void CPU::INC_DE_0x13()
 {
-	INC(DE);
+	INC(DE, F);
 }
 
 void CPU::RLA_0x17()
@@ -329,7 +310,7 @@ void CPU::JR_NZ_0x20()
 {
 	SBYTE operand = _mmu->ReadByte(_PC + 1);
 	bool cnd = ((F & f_Zero) != f_Zero);
-	JR(cnd, operand);
+	JR(clock, _PC, cnd, operand);
 }
 void CPU::LD_HL_0x21()
 {
@@ -345,13 +326,13 @@ void CPU::LD_HL_PLUS_0x22()
 
 void CPU::INC_HL_0x23()
 {
-	INC(HL);
+	INC(HL, F);
 }
 
 void CPU::JR_Z_r8_0x28()
 {
 	SBYTE operand = _mmu->ReadByte(_PC + 1);
-	JR(((F & f_Zero) == f_Zero), operand);
+	JR(clock, _PC, ((F & f_Zero) == f_Zero), operand);
 }
 
 void CPU::LD_SP_0x31()
@@ -368,12 +349,12 @@ void CPU::LD_HL_MINUS_0x32()
 
 void CPU::INC_A_0x3C()
 {
-	INC(A);
+	INC(A, F);
 }
 
 void CPU::DEC_A_0x3D()
 {
-	DEC(A);
+	DEC(A, F);
 }
 
 void CPU::LD_A_d8_0x3E()
@@ -413,7 +394,7 @@ void CPU::LD_A_E_0x7B()
 
 void CPU::ADD_A_B_0x80()
 {
-	ADD(B);
+	ADD(A, F, B);
 }
 
 void CPU::SBC_A_A_0x9F()
@@ -423,17 +404,17 @@ void CPU::SBC_A_A_0x9F()
 
 void CPU::XOR_A_0xAF()
 {
-	XOR(A);
+	XOR(A, F, A);
 }
 
 void CPU::RET_NZ_0xC1()
 {
-	RET(!((F & f_Zero) == f_Zero));
+	RET(_mmu, _SP, _PC, clock, !((F & f_Zero) == f_Zero));
 }
 
 void CPU::PUSH_BC_0xC5()
 {
-	stackPush(BC);
+	PUSH(_mmu, _SP, BC);
 }
 
 
@@ -451,13 +432,13 @@ void CPU::PREFIX_0xCB()
 void CPU::CALL_Z_0xCC()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	CALL(((F & f_Zero) != f_Zero), operand);
+	CALL(_mmu, _SP, _PC, clock, noInc, ((F & f_Zero) != f_Zero), operand);
 }
 
 void CPU::CALL_d16_0xCD()
 {
 	WORD operand = _mmu->ReadWord(_PC + 1);
-	CALL(operand);
+	CALL(_mmu, _SP, _PC, noInc, operand);
 }
 
 void CPU::ADC_A_0xCE()
@@ -486,7 +467,7 @@ void CPU::DI_0xF3()
 
 void CPU::POP_HL_0xE1()
 {
-	POP(HL);
+	POP(_mmu, _SP, HL);
 }
 
 void CPU::LD_pC_A_0xE2()
@@ -544,7 +525,7 @@ void CPU::CP_d8_0xFE()
 //CB Page Instructions
 void CPU::BIT_H_7_0xCB7C()
 {
-	BIT(H, 7);
+	BIT(H, F, 7);
 }
 
 void CPU::RL_C_0xCB11()
@@ -558,226 +539,4 @@ void CPU::RL_C_0xCB11()
 	F &= ~f_Subtract;
 	F &= ~f_HalfCarry;
 	F &= ~f_Zero;
-}
-
-void CPU::LD(BYTE& _register, BYTE operand)
-{
-	_register = operand;
-}
-
-void CPU::LD(WORD& _reg16, WORD operand)
-{
-	_reg16 = operand;
-}
-
-void CPU::LD(WORD _address, BYTE operand)
-{
-	_mmu->WriteByte(_address, operand);
-}
-
-void CPU::ADD(BYTE operand)
-{
-	WORD res = A + operand;
-
-	if ((((operand >> 8) & 0xF) + ((A >> 8) & 0xF)) & 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	if (res & 0x100)
-	{
-		F |= f_Carry;
-	}
-	if (res == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Subtract;
-	A = (BYTE)res;
-}
-
-void CPU::ADD(WORD operand)
-{
-	WORD target = HL;
-
-	WORD result = operand + target;
-
-	HL = result;
-
-	if ((((operand >> 8) & 0xF) + ((target >> 8) & 0xF)) & 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	if ((operand & 0x80) && (target & 0x80))
-	{
-		F |= f_Carry;
-	}
-	F &= ~f_Subtract;
-}
-
-void CPU::ADC(BYTE& _register, BYTE& operand)
-{
-	if ((_register & 0x8) == 0x8)
-	{
-		F |= f_HalfCarry;
-	}
-	_register = _register + operand;
-	if (_register == 0)
-	{
-		F |= f_Zero;
-	}
-}
-
-void CPU::ADC(BYTE& _register, WORD operand)
-{
-}
-
-void CPU::BIT(BYTE& _register, BYTE nBit)
-{
-	BYTE nMask = ((BYTE)1 << (BYTE)nBit);
-	if ((_register & nMask) == nMask)
-	{
-		F &= ~nMask;
-	}
-	else
-	{
-		F |= nMask;
-	}
-	F &= ~f_Subtract;
-	F |= f_HalfCarry;
-}
-
-void CPU::SUB(BYTE operand)
-{
-}
-
-void CPU::SUB(WORD operand)
-{
-}
-
-void CPU::SBC(BYTE& _register, BYTE operand)
-{
-	if ((_register & 0x10) == 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	_register -= operand;
-	if (_register == 0)
-	{
-		F |= f_Zero;
-	}
-	F |= f_Subtract;
-}
-
-void CPU::SBC(BYTE& _register, WORD operand)
-{
-}
-
-void CPU::INC(BYTE& _register)
-{
-	if ((_register & 0xF) == 0xF)
-	{
-		F |= f_HalfCarry;
-	}
-	_register++;
-	if (_register == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Subtract;
-}
-
-//Increment a 16-bit register value.
-//TODO: Add soul-crushing flag manipulation
-void CPU::INC(WORD& reg16)
-{
-	reg16++;
-}
-
-//8-bit decrement. Extra complex, as we have to decrement the value, and set all the required flags.
-void CPU::DEC(BYTE& _register)
-{
-	if ((_register & 0x10) == 0x10)
-	{
-		F |= f_HalfCarry;
-	}
-	_register--;
-	if (_register == 0)
-	{
-		F |= f_Zero;
-	}
-	F |= f_Subtract;
-}
-
-void CPU::DEC(WORD& reg16)
-{
-	reg16--;
-}
-
-void CPU::JR(bool condition, SBYTE offset)
-{
-	if (condition)
-	{
-		clock += 4; //Have to add to clock, as branching takes longer than not branching
-		_PC += offset;
-	}
-}
-
-void CPU::XOR(BYTE operand)
-{
-	A ^= operand;
-	if (A == 0)
-	{
-		F |= f_Zero;
-	}
-	F &= ~f_Carry;
-	F &= ~f_HalfCarry;
-	F &= ~f_Subtract;
-}
-
-//Unconditional return
-void CPU::RET()
-{
-	_PC = stackPop();
-}
-
-//Conditional return
-void CPU::RET(bool condition)
-{
-	if (condition)
-	{
-		clock += 12; //Have to add to clock, as branching takes longer than not branching
-		_PC = stackPop();
-	}
-}
-
-void CPU::PUSH(WORD address)
-{
-	stackPush(address);
-}
-
-void CPU::POP(WORD& reg16)
-{
-	WORD var = _mmu->ReadWord(_SP);
-	DecSP();
-	reg16 = var;
-}
-
-void CPU::CALL(WORD addr)
-{
-	stackPush(_PC + 1);
-	noInc = true;
-	_PC = addr;
-}
-
-
-//Conditional call
-void CPU::CALL(bool condition, WORD addr)
-{
-	if (condition)
-	{
-		clock += 12; //Have to add to clock, as branching takes longer than not branching
-		stackPush(_PC + 1);
-		noInc = true;
-		_PC = addr;
-	}
 }
